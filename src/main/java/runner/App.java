@@ -1,8 +1,6 @@
 package runner;
 
-import algorithm.Population;
-import algorithm.Problem;
-import algorithm.Settings;
+import algorithm.Algorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,20 +9,14 @@ import org.slf4j.LoggerFactory;
  */
 public class App {
 
-    static Logger logger = LoggerFactory.getLogger(Problem.class);
+    static Logger logger = LoggerFactory.getLogger(App.class);
 
     public static void main(String[] args) {
-        Problem problem = Problem.getInstance();
-        Settings settings = new Settings();
-        Population population = new Population();
         try {
-            problem.init("C:\\Users\\Коваленко Никита\\Desktop\\problem.txt");
-            settings.init("C:\\Users\\Коваленко Никита\\Desktop\\settings.txt");
-            population.initialization(settings, problem.getDimension());
-            population.calcSuitability();
-            population.findBest();
-            population.selection();
-            population.recombination();
+            Algorithm algorithm = new Algorithm();
+            algorithm.init("C:\\Work\\projects\\GA-on-permutations\\problem.txt",
+                    "C:\\Work\\projects\\GA-on-permutations\\settings.txt");
+            algorithm.process();
         } catch (Exception e) {
             logger.error(e.getMessage());
             e.printStackTrace();

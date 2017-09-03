@@ -2,10 +2,10 @@ package algorithm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.RecombinationType;
+import settings.RecombinationSettings;
+import util.RandomUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -16,34 +16,15 @@ public class Recombination {
 
     private static Logger logger = LoggerFactory.getLogger(Problem.class);
 
-    private RecombinationType recombinationType;
+    private RecombinationSettings settings = new RecombinationSettings();
 
-    public void init (String[] settings) {
-        recombinationType = RecombinationType.valueOf(settings[0]);
-        switch (recombinationType) {
-            case TYPICAL:
-                break;
-            default:
-                throw new IllegalArgumentException("Передан неверный тип рекомбинации: " + settings[0] +
-                        " допустимые значения: " + Arrays.toString(RecombinationType.values()));
-
-        }
+    public void init(String[] params) {
+        settings.init(params);
     }
 
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Тип селекции: ");
-        switch (recombinationType) {
-            case TYPICAL:
-                sb.append("стандартная");
-                break;
-        }
-        return sb.toString();
-    }
-
-    public List<Individual> recombination(List<Individual> individuals, Integer individualsAmount) {
-        logger.info(toString());
-        switch (recombinationType) {
+    public List<Individual> recombine(List<Individual> individuals, Integer individualsAmount) {
+        logger.info(settings.toString());
+        switch (settings.getRecombinationType()) {
             case TYPICAL:
                 return typicalRecombination(individuals, individualsAmount);
         }
@@ -67,12 +48,12 @@ public class Recombination {
     }
 
     private Individual generateChild(Random random, Individual parent0, Individual parent1, int size) {
-        logger.info("Первый родитель: " + parent0.toString());
-        logger.info("Второй родитель: " + parent1.toString());
+        logger.debug("Первый родитель: " + parent0.toString());
+        logger.debug("Второй родитель: " + parent1.toString());
         Individual child = new Individual();
         List<Integer> phenotype = new ArrayList<>();
-        int index0 = getRandomIndexExclude(null, random, size);
-        int index1 = getRandomIndexExclude(index0, random, size);
+        int index0 = RandomUtils.getRandomIndexExclude(null, size, false);
+        int index1 = RandomUtils.getRandomIndexExclude(index0, size, false);
         if (index0 < index1) {
             // копируем всё, что в промежутке между index0 и index1
             for (int i = index0; i <= index1; i++) {
@@ -96,15 +77,16 @@ public class Recombination {
         }
         child.setDimension(size);
         child.setPhenotype(phenotype);
-        logger.info("Полученный ребёнок: " + child.toString());
+        logger.debug("Полученный ребёнок: " + child.toString());
         return child;
     }
 
-    private int getRandomIndexExclude(Integer excludeIndex, Random random, int bound) {
-        Integer index;
-        do {
-            index = random.nextInt(bound - 1);
-        } while (index == 0 || index.equals(excludeIndex));
-        return index;
+    public RecombinationSettings getSettings() {
+        return settings;
     }
+
+    public void setSettings(RecombinationSettings settings) {
+        this.settings = settings;
+    }
+
 }

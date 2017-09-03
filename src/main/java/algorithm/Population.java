@@ -2,7 +2,6 @@ package algorithm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.SelectionType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,23 +11,15 @@ import java.util.List;
  */
 public class Population {
 
-    private static Logger logger = LoggerFactory.getLogger(Problem.class);
+    private static Logger logger = LoggerFactory.getLogger(Population.class);
 
     private List<Individual> parents;
     private List<Individual> individuals;
     private Individual bestIndividual;
-    private Selection selection;
-    private Recombination recombination;
     private Integer individualsAmount;
 
-    public void initialization(Settings settings, Integer individualDimension) {
+    public void init(Integer individualDimension) {
         logger.info("Ининициализация популяции. Начало");
-        this.individualsAmount = settings.getIndividualsAmount();
-        this.selection = settings.getSelection();
-        this.recombination = settings.getRecombination();
-        this.individualsAmount = settings.getIndividualsAmount();
-        this.selection = settings.getSelection();
-        this.recombination = settings.getRecombination();
         individuals = new ArrayList<>();
         for (int i = 0; i < individualsAmount; i++) {
             individuals.add(Individual.createIndividual(individualDimension));
@@ -47,22 +38,47 @@ public class Population {
     public void findBest() {
         logger.info("Выбор лучшего индивида в популяции. Начало");
         int index = Individual.getIndexOfBest(individuals);
-        bestIndividual = Individual.clone(individuals.get(index));
-        logger.info("Полученный индивид: " + bestIndividual.toString());
+        Individual best = individuals.get(index);
+        // первое поколение - просто берём лучшего
+        if (bestIndividual == null) {
+            bestIndividual = Individual.clone(best);
+        } else {
+            // для всех остальных сравниваем пригодность
+            if (bestIndividual.getSuitability() < best.getSuitability()) {
+                logger.debug("Заменяем предыдущего лучшего индивида: " + bestIndividual.toString());
+                logger.debug("Пригодность данного индивида: " + bestIndividual.getSuitability());
+                logger.debug("Значение оптимизируемой функции для данного индивида: " + bestIndividual.getObjectiveFunctionValue());
+                bestIndividual = Individual.clone(best);
+            } else {
+                logger.debug("Пригодность лучшего индивида в популяции: " + best.getSuitability());
+                logger.debug("Значение оптимизируемой функции для данного индивида: " + best.getObjectiveFunctionValue());
+                logger.debug("Сам индивид: " + best.toString());
+                logger.debug("Он хуже предыдущего, замену не производим");
+            }
+        }
+
+        logger.info("Лучший индивид: " + bestIndividual.toString());
         logger.info("Пригодность данного индивида: " + bestIndividual.getSuitability());
+        logger.info("Значение оптимизируемой функции для данного индивида: " + bestIndividual.getObjectiveFunctionValue());
         logger.info("Выбор лучшего индивида в популяции. Окончание");
     }
 
-    public void selection() {
+    public void selection(Selection selection) {
         logger.info("Селекция в популяции. Начало");
-        parents = selection.selection(individuals, individualsAmount);
+        parents = selection.select(individuals, individualsAmount);
         logger.info("Селекция в популяции. Окончание");
     }
 
-    public void recombination() {
+    public void recombination(Recombination recombination) {
         logger.info("Рекомбинация в популяции. Начало");
-        individuals = recombination.recombination(parents, individualsAmount);
+        individuals = recombination.recombine(parents, individualsAmount);
         logger.info("Рекомбинация в популяции. Окончание");
+    }
+
+    public void mutation(Mutation mutation) {
+        logger.info("Мутация в популяции. Начало");
+        mutation.mutate(individuals, individualsAmount);
+        logger.info("Мутация в популяции. Окончание");
     }
 
     public List<Individual> getIndividuals() {
@@ -81,14 +97,6 @@ public class Population {
         this.bestIndividual = bestIndividual;
     }
 
-    public Selection getSelection() {
-        return selection;
-    }
-
-    public void setSelection(Selection selection) {
-        this.selection = selection;
-    }
-
     public Integer getIndividualsAmount() {
         return individualsAmount;
     }
@@ -96,4 +104,5 @@ public class Population {
     public void setIndividualsAmount(Integer individualsAmount) {
         this.individualsAmount = individualsAmount;
     }
+
 }

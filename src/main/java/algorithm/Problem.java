@@ -52,8 +52,8 @@ public class Problem {
     }
 
     public Double calcObjectiveFunction(Individual individual) {
-        logger.info("Подсчёт целевой функции для индивида. Начало");
-        logger.info("Индивид: " + individual.toString());
+        logger.debug("Подсчёт целевой функции для индивида. Начало");
+        logger.debug("Индивид: " + individual.toString());
         Double result = 0d;
 
         for (int i = 0; i < individual.getDimension() - 1; i++) {
@@ -63,17 +63,18 @@ public class Problem {
         // расстояние между первым и последним городом тоже надо учитывать
         result += calcDistanceBetweenCities(individual.getElementByIndex(individual.getDimension() - 1),
                 individual.getElementByIndex(0));
-        logger.info("Полученное значение: " + result);
-        logger.info("Подсчёт целевой функции для индивида. Окончание");
+        logger.debug("Полученное значение: " + result);
+        logger.debug("Подсчёт целевой функции для индивида. Окончание");
         return result;
     }
 
     public Double calcFitnessFunction(Individual individual) {
-        logger.info("Подсчёт функции пригодности для индивида. Начало");
-        logger.info("Индивид: " + individual.toString());
-        Double result = 10000 / (1 + calcObjectiveFunction (individual));
-        logger.info("Полученное значение: " + result);
-        logger.info("Подсчёт функции пригодности для индивида. Окончание");
+        logger.debug("Подсчёт функции пригодности для индивида. Начало");
+        logger.debug("Индивид: " + individual.toString());
+        individual.setObjectiveFunctionValue(calcObjectiveFunction (individual));
+        Double result = 10000 / (1 + individual.getObjectiveFunctionValue());
+        logger.debug("Полученное значение: " + result);
+        logger.debug("Подсчёт функции пригодности для индивида. Окончание");
         return result;
     }
 
