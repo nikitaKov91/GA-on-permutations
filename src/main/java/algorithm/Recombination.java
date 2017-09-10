@@ -39,21 +39,21 @@ public class Recombination {
         for (int i = 0; i < individualsAmount * 2; i += 2) {
             Boolean whoIsFirst = random.nextBoolean();
             if (whoIsFirst) {
-                children.add(generateChild(random, individuals.get(i), individuals.get(i + 1), size));
+                children.add(generateChild(individuals.get(i), individuals.get(i + 1), size));
             } else {
-                children.add(generateChild(random, individuals.get(i + 1), individuals.get(i), size));
+                children.add(generateChild(individuals.get(i + 1), individuals.get(i), size));
             }
         }
         return children;
     }
 
-    private Individual generateChild(Random random, Individual parent0, Individual parent1, int size) {
+    private Individual generateChild(Individual parent0, Individual parent1, int size) {
         logger.debug("Первый родитель: " + parent0.toString());
         logger.debug("Второй родитель: " + parent1.toString());
         Individual child = new Individual();
         List<Integer> phenotype = new ArrayList<>();
-        int index0 = RandomUtils.getRandomIndexExclude(null, size, false);
-        int index1 = RandomUtils.getRandomIndexExclude(index0, size, false);
+        int index0 = RandomUtils.getRandomIndexExclude(null, size - 1, false);
+        int index1 = RandomUtils.getRandomIndexExclude(index0, size - 1, false);
         if (index0 < index1) {
             // копируем всё, что в промежутке между index0 и index1
             for (int i = index0; i <= index1; i++) {

@@ -52,7 +52,7 @@ public class Selection {
      * @return отобранные родители
      */
     private List<Individual> tournamentSelection(List<Individual> individuals, Integer individualsAmount) {
-        List<Individual> parents = new ArrayList<>();
+        List<Individual> parents = new ArrayList<>(individualsAmount * 2);
         logger.info("Нужное количество родителей: " + individualsAmount * 2);
         for (int i = 0; i < individualsAmount * 2; i++) {
             int maxIndex = 0;

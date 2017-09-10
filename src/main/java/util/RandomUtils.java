@@ -28,12 +28,13 @@ public class RandomUtils {
      * получение случайного индекса (используется для 2х индексов, чтобы не создавать List)
      * @param excludeIndex - индекс для исключения
      * @param bound - общее кол-во (ограничение для random)
+     * @param allowZero - можно ли включать 0
      * @return нужный индекс
      */
     public static int getRandomIndexExclude(Integer excludeIndex, int bound, boolean allowZero) {
         Integer index;
         do {
-            index = random.nextInt(bound - 1);
+            index = random.nextInt(bound);
         } while (index == 0 && !allowZero || index.equals(excludeIndex));
         return index;
     }

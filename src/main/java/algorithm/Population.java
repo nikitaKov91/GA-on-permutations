@@ -77,7 +77,7 @@ public class Population {
 
     public void mutation(Mutation mutation) {
         logger.info("Мутация в популяции. Начало");
-        mutation.mutate(individuals, individualsAmount);
+        mutation.mutate(individuals);
         logger.info("Мутация в популяции. Окончание");
     }
 

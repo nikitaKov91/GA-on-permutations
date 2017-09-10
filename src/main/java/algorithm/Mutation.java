@@ -22,14 +22,14 @@ public class Mutation {
         settings.init(params);
     }
 
-    public void mutate(List<Individual> individuals, Integer individualsAmount) {
+    public void mutate(List<Individual> individuals) {
         logger.info(settings.toString());
         int size = individuals.get(0).getDimension();
         for (Individual individual : individuals) {
             if (isRunMutation()) {
                 logger.debug("Запускаем мутацию индивида: " + individual.toString());
                 int index0 = RandomUtils.getRandomIndexExclude(null, size, true);
-                int index1 = RandomUtils.getRandomIndexExclude(index0, size, true);
+                int index1 = RandomUtils.getRandomIndexExclude(null, size, true);
                 if (index0 != index1) {
                     Collections.swap(individual.getPhenotype(), index0, index1);
                 }
