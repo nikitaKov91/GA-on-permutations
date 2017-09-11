@@ -4,12 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import settings.SelectionSettings;
 import util.RandomUtils;
-import util.SelectionType;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Created by Коваленко Никита on 27.08.2017.

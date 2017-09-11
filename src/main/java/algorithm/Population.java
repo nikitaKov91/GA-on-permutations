@@ -35,10 +35,23 @@ public class Population {
         logger.info("Подсчёт значения функции пригодности в популяции. Окончание");
     }
 
+    public Individual getBest(List<Individual> individuals) {
+        int i = 0;
+        int index = 0;
+        Double bestSuitability = 0d;
+        for (Individual individual : individuals) {
+            if (individual.getSuitability() > bestSuitability) {
+                bestSuitability = individual.getSuitability();
+                index = i;
+            }
+            i++;
+        }
+        return individuals.get(index);
+    }
+
     public void findBest() {
         logger.info("Выбор лучшего индивида в популяции. Начало");
-        int index = Individual.getIndexOfBest(individuals);
-        Individual best = individuals.get(index);
+        Individual best = getBest(individuals);
         // первое поколение - просто берём лучшего
         if (bestIndividual == null) {
             bestIndividual = Individual.clone(best);

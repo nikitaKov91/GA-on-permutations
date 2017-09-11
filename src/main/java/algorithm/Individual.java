@@ -2,6 +2,7 @@ package algorithm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.RandomUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,9 +48,8 @@ public class Individual {
         for (int i = 0; i < individualDimension; i++) {
             phenotype.add(i);
         }
-        Random random = new Random();
         for (int i = individualDimension - 1; i >= 0; i--) {
-            int j = random.nextInt(individualDimension);
+            int j = RandomUtils.random.nextInt(individualDimension);
             Collections.swap(phenotype, i, j);
         }
         individual.setPhenotype(phenotype);
@@ -78,20 +78,6 @@ public class Individual {
     public static Individual clone(Individual individual) {
         return new Individual(individual.phenotype, individual.suitability,
                 individual.objectiveFunctionValue, individual.dimension);
-    }
-
-    public static int getIndexOfBest(List<Individual> individuals) {
-        int i = 0;
-        int index = 0;
-        Double bestSuitability = 0d;
-        for (Individual individual : individuals) {
-            if (individual.getSuitability() > bestSuitability) {
-                bestSuitability = individual.getSuitability();
-                index = i;
-            }
-            i++;
-        }
-        return index;
     }
 
     public List<Integer> getPhenotype() {

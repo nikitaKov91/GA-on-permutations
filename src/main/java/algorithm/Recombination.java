@@ -7,7 +7,6 @@ import util.RandomUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Created by Коваленко Никита on 27.08.2017.
@@ -33,11 +32,10 @@ public class Recombination {
 
     private List<Individual> typicalRecombination(List<Individual> individuals, Integer individualsAmount) {
         int size = individuals.get(0).getDimension();
-        Random random = new Random();
         List<Individual> children = new ArrayList<>();
         // выбираем родителей попарно
         for (int i = 0; i < individualsAmount * 2; i += 2) {
-            Boolean whoIsFirst = random.nextBoolean();
+            Boolean whoIsFirst = RandomUtils.random.nextBoolean();
             if (whoIsFirst) {
                 children.add(generateChild(individuals.get(i), individuals.get(i + 1), size));
             } else {
