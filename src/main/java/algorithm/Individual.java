@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.RandomUtils;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
 /**
  * Created by Коваленко Никита on 27.08.2017.
  */
-public class Individual {
+public class Individual implements Serializable {
 
     private static Logger logger = LoggerFactory.getLogger(Individual.class);
 
@@ -21,17 +22,6 @@ public class Individual {
     private Double objectiveFunctionValue;
     private Double suitability;
     private int dimension;
-
-    public Individual() {
-        super();
-    }
-
-    public Individual(List<Integer> phenotype, Double suitability, Double objectiveFunctionValue, int dimension) {
-        this.phenotype = phenotype;
-        this.suitability = suitability;
-        this.objectiveFunctionValue = objectiveFunctionValue;
-        this.dimension = dimension;
-    }
 
     /**
      * создание индивида с поомщью метода Фишера-Йетса
@@ -49,7 +39,7 @@ public class Individual {
             phenotype.add(i);
         }
         for (int i = individualDimension - 1; i >= 0; i--) {
-            int j = RandomUtils.random.nextInt(individualDimension);
+            int j = RandomUtils.random.nextInt(i + 1);
             Collections.swap(phenotype, i, j);
         }
         individual.setPhenotype(phenotype);
@@ -76,8 +66,20 @@ public class Individual {
     }
 
     public static Individual clone(Individual individual) {
-        return new Individual(individual.phenotype, individual.suitability,
-                individual.objectiveFunctionValue, individual.dimension);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos;
+        try {
+            oos = new ObjectOutputStream(baos);
+            oos.writeObject(individual);
+            ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+            ObjectInputStream ois = new ObjectInputStream(bais);
+            return (Individual) ois.readObject();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public List<Integer> getPhenotype() {

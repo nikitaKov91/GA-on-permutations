@@ -28,6 +28,13 @@ public class Settings {
         logger.info("Количество индивидов в популяции: " + content.get(0));
         algorithm.getSelection().init(content.get(1).split(" "));
         logger.info("Настройки селекции: " + algorithm.getSelection().getSettings().toString());
+        SelectionSettings selectionSettings = algorithm.getSelection().getSettings();
+        if (selectionSettings.getSelectionType().equals(util.SelectionType.TOURNAMENT)) {
+            if (selectionSettings.getTournamentSize() > algorithm.getPopulation().getIndividualsAmount()) {
+                throw new IllegalArgumentException("Размер турнира больше количества индивидов," +
+                        " пожалуйста, измените настройки");
+            }
+        }
         algorithm.getRecombination().init(content.get(2).split(" "));
         logger.info("Настройки рекомбинации: " + algorithm.getRecombination().getSettings().toString());
         algorithm.getMutation().init(content.get(3).split(" "));

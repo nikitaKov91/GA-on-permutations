@@ -28,8 +28,8 @@ public class Mutation {
         for (Individual individual : individuals) {
             if (isRunMutation()) {
                 logger.debug("Запускаем мутацию индивида: " + individual.toString());
-                int index0 = RandomUtils.getRandomIndexExclude(null, size, true);
-                int index1 = RandomUtils.getRandomIndexExclude(null, size, true);
+                int index0 = RandomUtils.getRandomIndexExclude(null, size);
+                int index1 = RandomUtils.getRandomIndexExclude(null, size);
                 if (index0 != index1) {
                     Collections.swap(individual.getPhenotype(), index0, index1);
                 }

@@ -50,8 +50,8 @@ public class Recombination {
         logger.debug("Второй родитель: " + parent1.toString());
         Individual child = new Individual();
         List<Integer> phenotype = new ArrayList<>();
-        int index0 = RandomUtils.getRandomIndexExclude(null, size - 1, false);
-        int index1 = RandomUtils.getRandomIndexExclude(index0, size - 1, false);
+        int index0 = RandomUtils.getRandomIndexExclude(null, size);
+        int index1 = RandomUtils.getRandomIndexExclude(index0, size);
         if (index0 < index1) {
             // копируем всё, что в промежутке между index0 и index1
             for (int i = index0; i <= index1; i++) {
@@ -59,10 +59,10 @@ public class Recombination {
             }
         } else {
             // копируем всё, исключая то, что в промежутке между index1 и index0
-            for (int i = 0; i <= index1; i++) {
+            for (int i = index0; i < size; i++) {
                 phenotype.add(parent0.getElementByIndex(i));
             }
-            for (int i = index0; i < size; i++) {
+            for (int i = 0; i <= index1; i++) {
                 phenotype.add(parent0.getElementByIndex(i));
             }
         }
