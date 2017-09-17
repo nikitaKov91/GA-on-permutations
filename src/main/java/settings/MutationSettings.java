@@ -1,6 +1,5 @@
 package settings;
 
-import util.MutationProbability;
 import util.MutationType;
 
 import java.util.Arrays;
@@ -11,7 +10,7 @@ import java.util.Arrays;
 public class MutationSettings {
 
     private MutationType mutationType;
-    private MutationProbability mutationProbability;
+    private Double mutationProbability;
 
     public void init(String[] params) {
         try {
@@ -21,12 +20,7 @@ public class MutationSettings {
                     " допустимые значения: " + Arrays.toString(MutationType.values()));
         }
         if (mutationType != MutationType.TYPICAL) {
-            try {
-                mutationProbability = MutationProbability.valueOf(params[1]);
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Передана неверная вероятность мутации: " + params[1] +
-                        " допустимые значения: " + Arrays.toString(MutationProbability.values()));
-            }
+            mutationProbability = Double.valueOf(params[1]);
         }
     }
 
@@ -38,29 +32,17 @@ public class MutationSettings {
                 sb.append("стандартная");
                 break;
             case CUSTOM:
-                sb.append("кастомная");
-                sb.append(". Вероятность мутации: ");
-                switch (mutationProbability) {
-                    case LOW:
-                        sb.append("низкая");
-                        break;
-                    case AVERAGE:
-                        sb.append("средняя");
-                        break;
-                    case HIGH:
-                        sb.append("высокая");
-                        break;
-                }
+                sb.append("кастомная. Вероятность мутации: " + mutationProbability);
                 break;
         }
         return sb.toString();
     }
 
-    public MutationProbability getMutationProbability() {
+    public Double getMutationProbability() {
         return mutationProbability;
     }
 
-    public void setMutationProbability(MutationProbability mutationProbability) {
+    public void setMutationProbability(Double mutationProbability) {
         this.mutationProbability = mutationProbability;
     }
 

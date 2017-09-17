@@ -57,6 +57,7 @@ public class Recombination {
             for (int i = index0; i <= index1; i++) {
                 phenotype.add(parent0.getElementByIndex(i));
             }
+            fillChildBySecondParent(parent1, phenotype, index1, size);
         } else {
             // копируем всё, исключая то, что в промежутке между index1 и index0
             for (int i = index0; i < size; i++) {
@@ -65,18 +66,27 @@ public class Recombination {
             for (int i = 0; i <= index1; i++) {
                 phenotype.add(parent0.getElementByIndex(i));
             }
-        }
-        // из фенотипа второго родителя надо взять те, что не попали к ребёнку,
-        // причём в том же порядке, в котором они идут у второго родителя
-        for (Integer code : parent1.getPhenotype()) {
-            if (phenotype.indexOf(code) == -1) {
-                phenotype.add(code);
-            }
+            fillChildBySecondParent(parent1, phenotype, index0, size);
         }
         child.setDimension(size);
         child.setPhenotype(phenotype);
         logger.debug("Полученный ребёнок: " + child.toString());
         return child;
+    }
+
+    private void fillChildBySecondParent(Individual parent, List<Integer> phenotype, int index, int size) {
+        for (int i = index; i < size; i++) {
+            Integer code = parent.getElementByIndex(i);
+            if (phenotype.indexOf(code) == -1) {
+                phenotype.add(code);
+            }
+        }
+        for (int i = 0; i <= index; i++) {
+            Integer code = parent.getElementByIndex(i);
+            if (phenotype.indexOf(code) == -1) {
+                phenotype.add(code);
+            }
+        }
     }
 
     public RecombinationSettings getSettings() {
