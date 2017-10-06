@@ -24,7 +24,7 @@ public class Individual implements Serializable {
     private int dimension;
 
     /**
-     * создание индивида с поомщью метода Фишера-Йетса
+     * создание индивида с помощью метода Фишера-Йетса
      * @param individualDimension - размерность индивида
      * @return представителя класса
      */

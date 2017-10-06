@@ -37,7 +37,7 @@ public class Settings {
         }
         algorithm.getRecombination().init(content.get(2).split(" "));
         logger.info("Настройки рекомбинации: " + algorithm.getRecombination().getSettings().toString());
-        algorithm.getMutation().init(content.get(3).split(" "));
+        algorithm.getMutation().init(content.get(3).split(" "), algorithm.getProblem().getDimension());
         logger.info("Настройки мутации: " + algorithm.getMutation().getSettings().toString());
         algorithm.getSettings().setAmountOfGenerations(Integer.parseInt(content.get(4)));
         logger.info("Максимальное количество итераций: " + content.get(4));
