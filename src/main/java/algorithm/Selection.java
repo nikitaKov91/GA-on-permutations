@@ -21,8 +21,9 @@ public class Selection {
         settings.init(params);
     }
 
-    public List<Individual> select(List<Individual> individuals, Integer individualsAmount) {
+    public List<Individual> select(List<Individual> individuals, int individualsAmount) {
         logger.info(settings.toString());
+        logger.info("Нужное количество родителей: " + individualsAmount * 2);
         switch (settings.getSelectionType()) {
             case PROPORTIONAL:
                 return proportionalSelection(individuals, individualsAmount);
@@ -34,11 +35,30 @@ public class Selection {
         return individuals;
     }
 
-    private List<Individual> proportionalSelection(List<Individual> individuals, Integer individualsAmount) {
-        return individuals;
+    private List<Individual> proportionalSelection(List<Individual> individuals, int individualsAmount) {
+        List<Individual> parents = new ArrayList<>(individualsAmount * 2);
+        // считаем суммарную пригодность
+        double summarySuitability = 0;
+        for (Individual individual : individuals) {
+            summarySuitability += individual.getSuitability();
+        }
+        // набираем родителей
+        for (int i = 0; i < individualsAmount * 2; i++) {
+            double rollDice = summarySuitability * RandomUtils.random.nextDouble();
+            double localSummary = 0;
+            for (Individual individual : individuals) {
+                // если суммарная пригодность меньше выброшенного числа - индивид становится родителем
+                localSummary += individual.getSuitability();
+                if (localSummary <= rollDice) {
+                    parents.add(individual);
+                    break;
+                }
+            }
+        }
+        return parents;
     }
 
-    private List<Individual> rankingSelection(List<Individual> individuals, Integer individualsAmount) {
+    private List<Individual> rankingSelection(List<Individual> individuals, int individualsAmount) {
         return individuals;
     }
 
@@ -48,9 +68,8 @@ public class Selection {
      * @param individualsAmount - кол-во индивидов
      * @return отобранные родители
      */
-    private List<Individual> tournamentSelection(List<Individual> individuals, Integer individualsAmount) {
+    private List<Individual> tournamentSelection(List<Individual> individuals, int individualsAmount) {
         List<Individual> parents = new ArrayList<>(individualsAmount * 2);
-        logger.info("Нужное количество родителей: " + individualsAmount * 2);
         for (int i = 0; i < individualsAmount * 2; i++) {
             int maxIndex = 0;
             Double maxSuitability = 0d;
