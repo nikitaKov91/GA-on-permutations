@@ -5,8 +5,7 @@ import org.slf4j.LoggerFactory;
 import settings.SelectionSettings;
 import util.RandomUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by Коваленко Никита on 27.08.2017.
@@ -49,7 +48,7 @@ public class Selection {
             for (Individual individual : individuals) {
                 // если суммарная пригодность меньше выброшенного числа - индивид становится родителем
                 localSummary += individual.getSuitability();
-                if (localSummary <= rollDice) {
+                if (localSummary >= rollDice) {
                     parents.add(individual);
                     break;
                 }
@@ -58,8 +57,91 @@ public class Selection {
         return parents;
     }
 
+    class IndividualWrapper {
+
+        Individual individual;
+        double rank;
+
+        public IndividualWrapper(Individual individual) {
+            this.individual = individual;
+        }
+
+    }
+
+    class IndividualWrapperComparator implements Comparator<IndividualWrapper> {
+
+        @Override
+        public int compare(IndividualWrapper o1, IndividualWrapper o2) {
+            double difference = o1.individual.getSuitability() - o2.individual.getSuitability();
+            if (difference == 0) {
+                return 0;
+            } else if (difference > 0) {
+                return 1;
+            } else {
+                return -1;
+            }
+        }
+
+    }
+
+    private List<IndividualWrapper> getSortAndRankedIndividuals(List<Individual> individuals, int individualsAmount) {
+        // оборачиваем инивида, добавляя ранг
+        List<IndividualWrapper> individualsSorted = new ArrayList<>(individualsAmount);
+        for (Individual individual : individuals) {
+            individualsSorted.add(new IndividualWrapper(individual));
+        }
+        // упорядочиваем индивидов по возрастанию пригодности
+        Collections.sort(individualsSorted, new IndividualWrapperComparator());
+        // проставляем ранги
+        int i = 0;
+        while (i < individualsAmount) {
+            double suitability = individualsSorted.get(i).individual.getSuitability();
+            int j = i + 1;
+            int count = 1;
+            // считаем количество индивидов с такой же пригодностью
+            while (j < individualsAmount && suitability == individualsSorted.get(j).individual.getSuitability()) {
+                count += 1;
+                j += 1;
+            }
+            // если индивидов несколько, рангом будет среднее арифметическое
+            double rank = 0;
+            for (int k = 1; k <= count; k++) {
+                rank += i + k;
+            }
+            rank /= count;
+            individualsSorted.get(i).rank = rank;
+            if (count > 1) {
+                for (int k = 1; k <= count; k++) {
+                    individualsSorted.get(i + k).rank = rank;
+                }
+            }
+            i += count;
+        }
+        return individualsSorted;
+    }
+
     private List<Individual> rankingSelection(List<Individual> individuals, int individualsAmount) {
-        return individuals;
+        List<Individual> parents = new ArrayList<>(individualsAmount * 2);
+        List<IndividualWrapper> individualsSorted = getSortAndRankedIndividuals(individuals, individualsAmount);
+        // считаем суммарную пригодность
+        double summaryRank = 0;
+        for (IndividualWrapper individualWrapper : individualsSorted) {
+            summaryRank += individualWrapper.rank;
+        }
+        // набираем родителей
+        for (int i = 0; i < individualsAmount * 2; i++) {
+            double rollDice = summaryRank * RandomUtils.random.nextDouble();
+            double localSummary = 0;
+            for (IndividualWrapper individualWrapper : individualsSorted) {
+                // если суммарная пригодность меньше выброшенного числа - индивид становится родителем
+                localSummary += individualWrapper.rank;
+                if (localSummary >= rollDice) {
+                    parents.add(individualWrapper.individual);
+                    break;
+                }
+            }
+        }
+        return parents;
     }
 
     /**

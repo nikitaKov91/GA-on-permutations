@@ -1,5 +1,6 @@
 package settings;
 
+import util.RankingSelectionType;
 import util.SelectionType;
 
 import java.util.Arrays;
@@ -10,7 +11,11 @@ import java.util.Arrays;
 public class SelectionSettings {
 
     private SelectionType selectionType;
+    // для турнирной селекции
     private Integer tournamentSize;
+    // для ранговой селекции
+    private RankingSelectionType rankingSelectionType;
+    private Double weight;
 
     public void init(String[] params) {
         try {
@@ -23,6 +28,15 @@ public class SelectionSettings {
             case PROPORTIONAL:
                 break;
             case RANKING:
+                try {
+                    rankingSelectionType = RankingSelectionType.valueOf(params[1]);
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("Передан неверный тип ранговой селекции: " + params[1] +
+                            " допустимые значения: " + Arrays.toString(RankingSelectionType.values()));
+                }
+                if (rankingSelectionType == RankingSelectionType.EXPONENTIAL) {
+                    weight = Double.parseDouble(params[2]);
+                }
                 break;
             case TOURNAMENT:
                 tournamentSize = Integer.parseInt(params[1]);
