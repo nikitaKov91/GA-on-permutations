@@ -78,4 +78,19 @@ public class SelectionSettings {
         this.tournamentSize = tournamentSize;
     }
 
+    public RankingSelectionType getRankingSelectionType() {
+        return rankingSelectionType;
+    }
+
+    public void setRankingSelectionType(RankingSelectionType rankingSelectionType) {
+        this.rankingSelectionType = rankingSelectionType;
+    }
+
+    public Double getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Double weight) {
+        this.weight = weight;
+    }
 }

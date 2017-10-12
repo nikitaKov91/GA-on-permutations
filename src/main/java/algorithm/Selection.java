@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import settings.SelectionSettings;
 import util.RandomUtils;
+import util.RankingSelectionType;
 
 import java.util.*;
 
@@ -11,6 +12,8 @@ import java.util.*;
  * Created by Коваленко Никита on 27.08.2017.
  */
 public class Selection {
+
+    private static int initialWeight = 1;
 
     private static Logger logger = LoggerFactory.getLogger(Problem.class);
 
@@ -84,14 +87,7 @@ public class Selection {
 
     }
 
-    private List<IndividualWrapper> getSortAndRankedIndividuals(List<Individual> individuals, int individualsAmount) {
-        // оборачиваем инивида, добавляя ранг
-        List<IndividualWrapper> individualsSorted = new ArrayList<>(individualsAmount);
-        for (Individual individual : individuals) {
-            individualsSorted.add(new IndividualWrapper(individual));
-        }
-        // упорядочиваем индивидов по возрастанию пригодности
-        Collections.sort(individualsSorted, new IndividualWrapperComparator());
+    private void linearSelectionRanking(List<IndividualWrapper> individualsSorted, int individualsAmount) {
         // проставляем ранги
         int i = 0;
         while (i < individualsAmount) {
@@ -116,6 +112,30 @@ public class Selection {
                 }
             }
             i += count;
+        }
+    }
+
+    private void exponentialSelectionRanking(List<IndividualWrapper> individualsSorted, int individualsAmount) {
+        // проставляем ранги
+        int i = individualsAmount - 1;
+        while (i > 0) {
+            individualsSorted.get(i).rank = initialWeight * Math.pow(settings.getWeight(), individualsAmount - i - 1);
+            i -= 1;
+        }
+    }
+
+    private List<IndividualWrapper> getSortAndRankedIndividuals(List<Individual> individuals, int individualsAmount) {
+        // оборачиваем инивида, добавляя ранг
+        List<IndividualWrapper> individualsSorted = new ArrayList<>(individualsAmount);
+        for (Individual individual : individuals) {
+            individualsSorted.add(new IndividualWrapper(individual));
+        }
+        // упорядочиваем индивидов по возрастанию пригодности
+        Collections.sort(individualsSorted, new IndividualWrapperComparator());
+        if (settings.getRankingSelectionType() == RankingSelectionType.EXPONENTIAL) {
+            exponentialSelectionRanking(individualsSorted, individualsAmount);
+        } else if (settings.getRankingSelectionType() == RankingSelectionType.LINEAR) {
+            linearSelectionRanking(individualsSorted, individualsAmount);
         }
         return individualsSorted;
     }
