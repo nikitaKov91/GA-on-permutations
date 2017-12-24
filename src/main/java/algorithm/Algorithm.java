@@ -51,7 +51,7 @@ public class Algorithm {
             logger.info("Достигнут максимум итераций");
             ret = false;
         }
-        if (population.getBestIndividual().getObjectiveFunctionValue() <= settings.getSolution() + settings.getAccuracy()) {
+        if (population.getBestIndividual().getObjectiveFunctionValue() <= problem.getSolution() + settings.getAccuracy()) {
             logger.info("Достигнут ответ с заданной точностью");
             ret = false;
         }

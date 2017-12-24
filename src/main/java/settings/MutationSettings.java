@@ -21,9 +21,9 @@ public class MutationSettings {
             throw new IllegalArgumentException("Передан неверный тип мутации: " + params[0] +
                     " допустимые значения: " + Arrays.toString(MutationType.values()));
         }
-        if (mutationType == MutationType.TYPICAL) {
+        if (mutationType == MutationType.BY_2_EXCHANGE) {
             mutationProbability = Double.valueOf(params[1]);
-        } else if (mutationType == MutationType.CUSTOM) {
+        } else {
             try {
                 mutationProbabilityType = MutationProbabilityType.valueOf(params[1]);
             } catch (IllegalArgumentException e) {
@@ -37,32 +37,44 @@ public class MutationSettings {
         StringBuilder sb = new StringBuilder();
         sb.append("Тип мутации: ");
         switch (mutationType) {
-            case TYPICAL:
-                sb.append("стандартная. В");
+            case BY_2_EXCHANGE:
+                sb.append("стандартная. Вероятность мутации: " + mutationProbability);
                 break;
             case CUSTOM:
-                sb.append("кастомная. ");
-                switch (mutationProbabilityType) {
-                    case VERY_LOW:
-                        sb.append("Очень низкая");
-                        break;
-                    case LOW:
-                        sb.append("Низкая");
-                        break;
-                    case AVERAGE:
-                        sb.append("Средняя");
-                        break;
-                    case HIGH:
-                        sb.append("Высокая");
-                        break;
-                    case VERY_HIGH:
-                        sb.append("Очень высокая");
-                        break;
-                }
-                sb.append(" в");
+                sb.append("кастомная");
+            case BY_INVERSION:
+                sb.append("мутация инверсией");
+                break;
+            case BY_INSERTION:
+                sb.append("мутация вставкой");
+                break;
+            case BY_SHIFTING:
+                sb.append("мутация переводом");
                 break;
         }
-        sb.append("ероятность мутации: " + mutationProbability);
+
+        if (mutationType != MutationType.BY_2_EXCHANGE) {
+            sb.append(". ");
+            switch (mutationProbabilityType) {
+                case VERY_LOW:
+                    sb.append("Очень низкая");
+                    break;
+                case LOW:
+                    sb.append("Низкая");
+                    break;
+                case AVERAGE:
+                    sb.append("Средняя");
+                    break;
+                case HIGH:
+                    sb.append("Высокая");
+                    break;
+                case VERY_HIGH:
+                    sb.append("Очень высокая");
+                    break;
+            }
+            sb.append(" вероятность мутации");
+        }
+
         return sb.toString();
     }
 

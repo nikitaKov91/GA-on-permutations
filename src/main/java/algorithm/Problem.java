@@ -29,21 +29,29 @@ public class Problem {
     private List<List<Integer>> coordinates;
     private Integer dimension;
     private Integer coordinatesDimension;
+    private Double solution;
 
     public void init(String filePath) throws IOException {
         logger.info("Инициализация задачи. Начало");
         logger.info("Файл: " + filePath);
         instance.coordinates = new ArrayList<>();
         List<String> content = Files.readAllLines(Paths.get(filePath));
+        boolean isFirstLine = true;
         for (String line : content) {
-            List<Integer> temp = new ArrayList<>();
-            for (String coord : line.split(" ")) {
-                temp.add(Integer.parseInt(coord));
-            }
-            instance.coordinates.add(temp);
-            if (instance.coordinatesDimension == null) {
-                instance.coordinatesDimension = temp.size();
-                logger.info("Размерность вектора координат: " + instance.coordinatesDimension);
+            if (isFirstLine) {
+                instance.solution = Double.parseDouble(line);
+                logger.info("Решение: " + instance.solution);
+                isFirstLine = false;
+            } else {
+                List<Integer> temp = new ArrayList<>();
+                for (String coord : line.split(" ")) {
+                    temp.add(Integer.parseInt(coord));
+                }
+                instance.coordinates.add(temp);
+                if (instance.coordinatesDimension == null) {
+                    instance.coordinatesDimension = temp.size();
+                    logger.info("Размерность вектора координат: " + instance.coordinatesDimension);
+                }
             }
         }
         instance.dimension = instance.coordinates.size();
@@ -118,5 +126,13 @@ public class Problem {
 
     public void setCoordinatesDimension(Integer coordinatesDimension) {
         this.coordinatesDimension = coordinatesDimension;
+    }
+
+    public Double getSolution() {
+        return solution;
+    }
+
+    public void setSolution(Double solution) {
+        this.solution = solution;
     }
 }

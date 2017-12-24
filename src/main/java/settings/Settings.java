@@ -18,7 +18,6 @@ public class Settings {
 
     private int amountOfGenerations;
     private Double accuracy;
-    private Double solution;
 
     public static void init(Algorithm algorithm, String filePath) throws IOException {
         logger.info("Инициализация настроек. Начало");
@@ -43,13 +42,6 @@ public class Settings {
         logger.info("Максимальное количество итераций: " + content.get(4));
         algorithm.getSettings().setAccuracy(Double.parseDouble(content.get(5)));
         logger.info("Точность: " + content.get(5));
-        if (content.size() > 5) {
-            String solution = content.get(6);
-            if (solution != null && !solution.equals("")) {
-                algorithm.getSettings().setSolution(Double.parseDouble(solution));
-                logger.info("Решение: " + content.get(6));
-            }
-        }
         logger.info("Инициализация настроек. Окончание");
     }
 
@@ -59,14 +51,6 @@ public class Settings {
 
     public void setAccuracy(Double accuracy) {
         this.accuracy = accuracy;
-    }
-
-    public Double getSolution() {
-        return solution;
-    }
-
-    public void setSolution(Double solution) {
-        this.solution = solution;
     }
 
     public int getAmountOfGenerations() {
