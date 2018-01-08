@@ -24,6 +24,8 @@ public class Population {
         for (int i = 0; i < individualsAmount; i++) {
             individuals.add(Individual.createIndividual(individualDimension));
         }
+        calcSuitability();
+        findBest();
         logger.info("Ининициализация популяции. Окончание");
     }
 

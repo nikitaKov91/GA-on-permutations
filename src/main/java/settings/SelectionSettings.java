@@ -52,7 +52,16 @@ public class SelectionSettings {
                 sb.append("пропорциональная");
                 break;
             case RANKING:
-                sb.append("ранговая");
+                sb.append("ранговая, ");
+                switch (rankingSelectionType) {
+                    case LINEAR:
+                        sb.append("линейная");
+                        break;
+                    case EXPONENTIAL:
+                        sb.append("экспоненциальная.");
+                        sb.append(". Вес: " + weight);
+                        break;
+                }
                 break;
             case TOURNAMENT:
                 sb.append("турнирная");

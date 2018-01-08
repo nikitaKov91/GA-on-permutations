@@ -30,8 +30,6 @@ public class Algorithm {
     public void process() {
         logger.info("Алгоритм. Начало");
         population.init(problem.getDimension());
-        population.calcSuitability();
-        population.findBest();
         do {
             population.selection(selection);
             population.recombination(recombination);
