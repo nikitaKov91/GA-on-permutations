@@ -20,58 +20,34 @@ public class Mutation {
 
     private static Logger logger = LoggerFactory.getLogger(Problem.class);
 
-    private MutationSettings settings = new MutationSettings();
-    private int dimension;
+    private MutationSettings settings;
 
-    public void init(String[] params, Integer problemDimension) {
-        settings.init(params);
+    public void init() {
         if (settings.getMutationType() != MutationType.BY_2_EXCHANGE) {
-            calcMutationProbability(problemDimension);
+            calcMutationProbability();
         }
     }
 
-    public void calcMutationProbability(Integer problemDimension) {
+    public void calcMutationProbability() {
         logger.debug("Считаем вероятность мутации");
         double probability = 0;
-        if (settings.getMutationType() == MutationType.CUSTOM) {
-            for (int i = 0; i < problemDimension; i++) {
-                dimension += i;
-            }
-            probability = 0.5/dimension;
-            switch (settings.getMutationProbabilityType()) {
-                case VERY_LOW:
-                    probability *= 0.2;
-                    break;
-                case LOW:
-                    probability *= 0.5;
-                    break;
-                case HIGH:
-                    probability *= 2;
-                    break;
-                case VERY_HIGH:
-                    probability *= 5;
-                    break;
-            }
-        } else {
-            switch (settings.getMutationProbabilityType()) {
-                case VERY_LOW:
-                    probability = 0.2;
-                    break;
-                case LOW:
-                    probability = 0.5;
-                    break;
-                case AVERAGE:
-                    probability = 1;
-                    break;
-                case HIGH:
-                    probability = 1.5;
-                    break;
-                case VERY_HIGH:
-                    probability = 2;
-                    break;
-            }
+        switch (settings.getMutationProbabilityType()) {
+            case VERY_LOW:
+                probability = 0.2;
+                break;
+            case LOW:
+                probability = 0.5;
+                break;
+            case AVERAGE:
+                probability = 1;
+                break;
+            case HIGH:
+                probability = 1.5;
+                break;
+            case VERY_HIGH:
+                probability = 2;
+                break;
         }
-        
         settings.setMutationProbability(probability);
         logger.debug("Полученная вероятность: " + probability);
     }
@@ -80,8 +56,6 @@ public class Mutation {
         logger.debug("Запускаем мутацию индивида: " + individual.toString());
         if (settings.getMutationType() == MutationType.BY_2_EXCHANGE) {
             mutationBy2Exchange(individual, size);
-        } else if (settings.getMutationType() == MutationType.CUSTOM) {
-            customMutation(individual, size);
         } else if (settings.getMutationType() == MutationType.BY_INSERTION) {
             mutationByInsertion(individual, size);
         } else if (settings.getMutationType() == MutationType.BY_INVERSION) {
@@ -106,34 +80,6 @@ public class Mutation {
                     innerMutation(individual, size);
                 }
             }
-        }
-    }
-
-    public void customMutation(Individual individual, int size) {
-        // заполняем лист всевозможных перестановок
-        List<Pair<Integer, Integer>> permutations = new ArrayList();
-        for (int i = 0 ; i < size; i++) {
-            for (int j = i + 1; j < size; j++) {
-                permutations.add(new Pair(i, j));
-            }
-        }
-        // для каждой перестановки определяем, произойдёт ли она
-        List<Pair<Integer, Integer>> delete = new ArrayList();
-        for (int i = 0 ; i < permutations.size(); i++) {
-            if (settings.getMutationProbability() < random.nextDouble()) {
-                delete.add(permutations.get(i));
-            }
-        }
-        // удаляем все несостоявщиеся
-        permutations.removeAll(delete);
-        // оставшиеся перемешиваем с помощью метода Фишера-Йетса
-        for (int i = permutations.size() - 1; i >= 0; i--) {
-            int j = RandomUtils.random.nextInt(i + 1);
-            Collections.swap(permutations, i, j);
-        }
-        logger.debug("Перестановки в мутации: " + permutations);
-        for (Pair<Integer, Integer> pair : permutations) {
-            Collections.swap(individual.getPhenotype(), pair.getKey(), pair.getValue());
         }
     }
 
@@ -246,11 +192,7 @@ public class Mutation {
     }
 
     public boolean isRunMutation(Double mutationProbability) {
-        if (settings.getMutationType() == MutationType.CUSTOM) {
-            return true;
-        } else {
-            return mutationProbability >= random.nextDouble() ? true : false;
-        }
+        return mutationProbability >= random.nextDouble() ? true : false;
     }
 
     public MutationSettings getSettings() {

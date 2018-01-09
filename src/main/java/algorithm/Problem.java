@@ -39,8 +39,10 @@ public class Problem {
         boolean isFirstLine = true;
         for (String line : content) {
             if (isFirstLine) {
-                instance.solution = Double.parseDouble(line);
-                logger.info("Решение: " + instance.solution);
+                if (line != null && !"".equals(line)) {
+                    instance.solution = Double.parseDouble(line);
+                    logger.info("Решение: " + instance.solution);
+                }
                 isFirstLine = false;
             } else {
                 List<Integer> temp = new ArrayList<>();

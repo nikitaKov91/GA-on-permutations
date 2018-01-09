@@ -14,23 +14,26 @@ public class MutationSettings {
     private MutationProbabilityType mutationProbabilityType;
     private Double mutationProbability;
 
-    public void init(String[] params) {
-        try {
-            mutationType = MutationType.valueOf(params[0]);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Передан неверный тип мутации: " + params[0] +
-                    " допустимые значения: " + Arrays.toString(MutationType.values()));
-        }
-        if (mutationType == MutationType.BY_2_EXCHANGE) {
-            mutationProbability = Double.valueOf(params[1]);
-        } else {
-            try {
-                mutationProbabilityType = MutationProbabilityType.valueOf(params[1]);
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Передан неверный тип вероятности мутации: " + params[1] +
-                        " допустимые значения: " + Arrays.toString(MutationProbabilityType.values()));
-            }
-        }
+    private MutationSettings() {
+    }
+
+    public static MutationSettings create() {
+        return new MutationSettings();
+    }
+
+    public MutationSettings mutationType(MutationType mutationType) {
+        this.mutationType = mutationType;
+        return this;
+    }
+
+    public MutationSettings mutationProbabilityType(MutationProbabilityType mutationProbabilityType) {
+        this.mutationProbabilityType = mutationProbabilityType;
+        return this;
+    }
+
+    public MutationSettings mutationProbability(Double mutationProbability) {
+        this.mutationProbability = mutationProbability;
+        return this;
     }
 
     public String toString() {
@@ -40,8 +43,6 @@ public class MutationSettings {
             case BY_2_EXCHANGE:
                 sb.append("стандартная. Вероятность мутации: " + mutationProbability);
                 break;
-            case CUSTOM:
-                sb.append("кастомная");
             case BY_INVERSION:
                 sb.append("мутация инверсией");
                 break;

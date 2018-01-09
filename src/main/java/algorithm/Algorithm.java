@@ -49,9 +49,11 @@ public class Algorithm {
             logger.info("Достигнут максимум итераций");
             ret = false;
         }
-        if (population.getBestIndividual().getObjectiveFunctionValue() <= problem.getSolution() + settings.getAccuracy()) {
-            logger.info("Достигнут ответ с заданной точностью");
-            ret = false;
+        if (problem.getSolution() != null) {
+            if (population.getBestIndividual().getObjectiveFunctionValue() <= problem.getSolution() + settings.getAccuracy()) {
+                logger.info("Достигнут ответ с заданной точностью");
+                ret = false;
+            }
         }
         if (ret) {
             logger.info("Ни один критерий остановки не сработал");

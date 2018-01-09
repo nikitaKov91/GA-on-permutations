@@ -2,8 +2,6 @@ package settings;
 
 import util.RecombinationType;
 
-import java.util.Arrays;
-
 /**
  * Created by Коваленко Никита on 03.09.2017.
  */
@@ -11,13 +9,16 @@ public class RecombinationSettings {
 
     private RecombinationType recombinationType;
 
-    public void init (String[] params) {
-        try {
-            recombinationType = RecombinationType.valueOf(params[0]);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Передан неверный тип рекомбинации: " + params[0] +
-                    " допустимые значения: " + Arrays.toString(RecombinationType.values()));
-        }
+    private RecombinationSettings() {
+    }
+
+    public static RecombinationSettings create() {
+        return new RecombinationSettings();
+    }
+
+    public RecombinationSettings recombinationType(RecombinationType recombinationType) {
+        this.recombinationType = recombinationType;
+        return this;
     }
 
     public String toString() {

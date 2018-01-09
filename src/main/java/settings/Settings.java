@@ -25,23 +25,10 @@ public class Settings {
         List<String> content = Files.readAllLines(Paths.get(filePath));
         algorithm.getPopulation().setIndividualsAmount(Integer.parseInt(content.get(0)));
         logger.info("Количество индивидов в популяции: " + content.get(0));
-        algorithm.getSelection().init(content.get(1).split(" "));
-        logger.info("Настройки селекции: " + algorithm.getSelection().getSettings().toString());
-        SelectionSettings selectionSettings = algorithm.getSelection().getSettings();
-        if (selectionSettings.getSelectionType().equals(util.SelectionType.TOURNAMENT)) {
-            if (selectionSettings.getTournamentSize() > algorithm.getPopulation().getIndividualsAmount()) {
-                throw new IllegalArgumentException("Размер турнира больше количества индивидов," +
-                        " пожалуйста, измените настройки");
-            }
-        }
-        algorithm.getRecombination().init(content.get(2).split(" "));
-        logger.info("Настройки рекомбинации: " + algorithm.getRecombination().getSettings().toString());
-        algorithm.getMutation().init(content.get(3).split(" "), algorithm.getProblem().getDimension());
-        logger.info("Настройки мутации: " + algorithm.getMutation().getSettings().toString());
-        algorithm.getSettings().setAmountOfGenerations(Integer.parseInt(content.get(4)));
-        logger.info("Максимальное количество итераций: " + content.get(4));
-        algorithm.getSettings().setAccuracy(Double.parseDouble(content.get(5)));
-        logger.info("Точность: " + content.get(5));
+        algorithm.getSettings().setAmountOfGenerations(Integer.parseInt(content.get(1)));
+        logger.info("Максимальное количество итераций: " + content.get(1));
+        algorithm.getSettings().setAccuracy(Double.parseDouble(content.get(2)));
+        logger.info("Точность: " + content.get(2));
         logger.info("Инициализация настроек. Окончание");
     }
 

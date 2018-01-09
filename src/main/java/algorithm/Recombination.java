@@ -15,11 +15,7 @@ public class Recombination {
 
     private static Logger logger = LoggerFactory.getLogger(Problem.class);
 
-    private RecombinationSettings settings = new RecombinationSettings();
-
-    public void init(String[] params) {
-        settings.init(params);
-    }
+    private RecombinationSettings settings;
 
     public List<Individual> recombine(List<Individual> individuals, Integer individualsAmount) {
         logger.info(settings.toString());

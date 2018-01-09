@@ -17,11 +17,7 @@ public class Selection {
 
     private static Logger logger = LoggerFactory.getLogger(Problem.class);
 
-    private SelectionSettings settings = new SelectionSettings();
-
-    public void init(String[] params) {
-        settings.init(params);
-    }
+    private SelectionSettings settings;
 
     public List<Individual> select(List<Individual> individuals, int individualsAmount) {
         logger.info(settings.toString());
@@ -177,7 +173,7 @@ public class Selection {
             Double maxSuitability = 0d;
             List<Integer> indexes = new ArrayList<>();
             for (int j = 0; j < settings.getTournamentSize(); j++) {
-                int index = RandomUtils.getRandomIndexExclude(indexes, individualsAmount);
+                int index = RandomUtils.getRandomIndexExclude(indexes, individuals.size());
                 indexes.add(index);
                 // выбираем лучшего
                 Double suitability = individuals.get(index).getSuitability();
