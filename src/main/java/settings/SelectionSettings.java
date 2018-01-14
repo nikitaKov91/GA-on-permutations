@@ -1,13 +1,15 @@
 package settings;
 
+import util.OperatorType;
 import util.RankingSelectionType;
 import util.SelectionType;
 
 /**
  * Created by Коваленко Никита on 03.09.2017.
  */
-public class SelectionSettings {
+public class SelectionSettings implements OperatorSettings {
 
+    private OperatorType operatorType = OperatorType.SELECTION;
     private SelectionType selectionType;
     // для турнирной селекции
     private Integer tournamentSize;
@@ -67,6 +69,36 @@ public class SelectionSettings {
                 break;
         }
         return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        SelectionSettings that = (SelectionSettings) o;
+
+        if (selectionType != that.selectionType) return false;
+        if (!tournamentSize.equals(that.tournamentSize)) return false;
+        if (rankingSelectionType != that.rankingSelectionType) return false;
+        return weight.equals(that.weight);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = selectionType.hashCode();
+        result = 31 * result + tournamentSize.hashCode();
+        result = 31 * result + rankingSelectionType.hashCode();
+        result = 31 * result + weight.hashCode();
+        return result;
+    }
+
+    public OperatorType getOperatorType() {
+        return operatorType;
+    }
+
+    public void setOperatorType(OperatorType operatorType) {
+        this.operatorType = operatorType;
     }
 
     public SelectionType getSelectionType() {

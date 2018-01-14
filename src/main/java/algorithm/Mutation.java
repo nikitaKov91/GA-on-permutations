@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import settings.MutationSettings;
 import util.MutationType;
+import util.OperatorType;
 import util.RandomUtils;
 
 import java.util.ArrayList;
@@ -16,13 +17,14 @@ import static util.RandomUtils.*;
 /**
  * Created by Коваленко Никита on 03.09.2017.
  */
-public class Mutation {
+public class Mutation extends Operator {
 
     private static Logger logger = LoggerFactory.getLogger(Problem.class);
 
     private MutationSettings settings;
 
-    public void init() {
+    public Mutation(MutationSettings settings) {
+        this.settings = settings;
         if (settings.getMutationType() != MutationType.BY_2_EXCHANGE) {
             calcMutationProbability();
         }
@@ -66,19 +68,18 @@ public class Mutation {
         logger.debug("Полученный индивид: " + individual.toString());
     }
 
-    public void mutate(List<Individual> individuals) {
+    public void mutate(Individual individual) {
         logger.info(settings.toString());
-        int size = individuals.get(0).getDimension();
-        for (Individual individual : individuals) {
-            if (isRunMutation(settings.getMutationProbability())) {
+        individual.getOperatorsSettings().put(OperatorType.MUTATION, settings);
+        int size = individual.getDimension();
+        if (isRunMutation(settings.getMutationProbability())) {
+            innerMutation(individual, size);
+        }
+        // при вероятности мутации 1.5 индивид мутирует второй раз с вероятностью 50%,
+        // при вероятности мутации 2 индивид всегда мутирует дважды
+        if (settings.getMutationProbability() > 1) {
+            if (isRunMutation(settings.getMutationProbability() - 1)) {
                 innerMutation(individual, size);
-            }
-            // при вероятности мутации 1.5 индивид мутирует второй раз с вероятностью 50%,
-            // при вероятности мутации 2 индивид всегда мутирует дважды
-            if (settings.getMutationProbability() > 1) {
-                if (isRunMutation(settings.getMutationProbability() - 1)) {
-                    innerMutation(individual, size);
-                }
             }
         }
     }

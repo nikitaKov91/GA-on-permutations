@@ -11,11 +11,15 @@ import java.util.List;
 /**
  * Created by Коваленко Никита on 27.08.2017.
  */
-public class Recombination {
+public class Recombination extends Operator {
 
     private static Logger logger = LoggerFactory.getLogger(Problem.class);
 
     private RecombinationSettings settings;
+
+    public Recombination(RecombinationSettings settings) {
+        this.settings = settings;
+    }
 
     public List<Individual> recombine(List<Individual> individuals, Integer individualsAmount) {
         logger.info(settings.toString());

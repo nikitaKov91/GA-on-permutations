@@ -1,11 +1,14 @@
 package settings;
 
+import util.OperatorType;
 import util.RecombinationType;
 
 /**
  * Created by Коваленко Никита on 03.09.2017.
  */
-public class RecombinationSettings {
+public class RecombinationSettings implements OperatorSettings {
+
+    private OperatorType operatorType = OperatorType.RECOMBINATION;
 
     private RecombinationType recombinationType;
 
@@ -30,6 +33,29 @@ public class RecombinationSettings {
                 break;
         }
         return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        RecombinationSettings that = (RecombinationSettings) o;
+
+        return recombinationType == that.recombinationType;
+    }
+
+    @Override
+    public int hashCode() {
+        return recombinationType.hashCode();
+    }
+
+    public OperatorType getOperatorType() {
+        return operatorType;
+    }
+
+    public void setOperatorType(OperatorType operatorType) {
+        this.operatorType = operatorType;
     }
 
     public RecombinationType getRecombinationType() {

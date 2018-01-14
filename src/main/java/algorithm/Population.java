@@ -2,9 +2,12 @@ package algorithm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import settings.OperatorSettings;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Коваленко Никита on 27.08.2017.
@@ -78,22 +81,31 @@ public class Population {
         logger.info("Выбор лучшего индивида в популяции. Окончание");
     }
 
-    public void selection(Selection selection) {
+    public void selection(Map<OperatorSettings, Operator> selections) {
         logger.info("Селекция в популяции. Начало");
-        parents = selection.select(individuals, individualsAmount);
+        // parents = selection.select(individuals, individualsAmount);
         logger.info("Селекция в популяции. Окончание");
     }
 
-    public void recombination(Recombination recombination) {
+    public void recombination(Map<OperatorSettings, Operator> recombinations) {
         logger.info("Рекомбинация в популяции. Начало");
-        individuals = recombination.recombine(parents, individualsAmount);
+        // individuals = recombination.recombine(parents, individualsAmount);
         logger.info("Рекомбинация в популяции. Окончание");
     }
 
-    public void mutation(Mutation mutation) {
+    public void mutation(Map<OperatorSettings, Operator> mutations) {
         logger.info("Мутация в популяции. Начало");
-        mutation.mutate(individuals);
+        for (Individual individual : individuals) {
+            Mutation mutation = (Mutation) Operator.selectOperator(mutations);
+            mutation.mutate(individual);
+        }
         logger.info("Мутация в популяции. Окончание");
+    }
+
+    public void calcOperatorFitness(Map<OperatorSettings, Operator> ... operators) {
+        logger.info("Подсчёт пригодности операторов в популяции. Начало");
+        Operator.calcOperatorFitness(individuals, operators);
+        logger.info("Подсчёт пригодности операторов в популяции. Окончание");
     }
 
     public List<Individual> getIndividuals() {

@@ -11,13 +11,17 @@ import java.util.*;
 /**
  * Created by Коваленко Никита on 27.08.2017.
  */
-public class Selection {
+public class Selection extends Operator {
 
     private static int initialWeight = 1;
 
     private static Logger logger = LoggerFactory.getLogger(Problem.class);
 
     private SelectionSettings settings;
+
+    public Selection(SelectionSettings settings) {
+        this.settings = settings;
+    }
 
     public List<Individual> select(List<Individual> individuals, int individualsAmount) {
         logger.info(settings.toString());

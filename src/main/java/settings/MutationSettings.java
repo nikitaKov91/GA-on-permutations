@@ -2,14 +2,16 @@ package settings;
 
 import util.MutationProbabilityType;
 import util.MutationType;
+import util.OperatorType;
 
 import java.util.Arrays;
 
 /**
  * Created by Коваленко Никита on 03.09.2017.
  */
-public class MutationSettings {
+public class MutationSettings implements OperatorSettings {
 
+    private OperatorType operatorType = OperatorType.MUTATION;
     private MutationType mutationType;
     private MutationProbabilityType mutationProbabilityType;
     private Double mutationProbability;
@@ -77,6 +79,34 @@ public class MutationSettings {
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        MutationSettings that = (MutationSettings) o;
+
+        if (mutationType != that.mutationType) return false;
+        if (mutationProbabilityType != that.mutationProbabilityType) return false;
+        return mutationProbability.equals(that.mutationProbability);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mutationType.hashCode();
+        result = 31 * result + mutationProbabilityType.hashCode();
+        result = 31 * result + mutationProbability.hashCode();
+        return result;
+    }
+
+    public OperatorType getOperatorType() {
+        return operatorType;
+    }
+
+    public void setOperatorType(OperatorType operatorType) {
+        this.operatorType = operatorType;
     }
 
     public Double getMutationProbability() {

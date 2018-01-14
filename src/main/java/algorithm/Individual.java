@@ -2,13 +2,15 @@ package algorithm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import settings.MutationSettings;
+import settings.OperatorSettings;
+import settings.RecombinationSettings;
+import settings.SelectionSettings;
+import util.OperatorType;
 import util.RandomUtils;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -22,7 +24,7 @@ public class Individual implements Serializable {
     private Double objectiveFunctionValue;
     private Double suitability;
     private int dimension;
-
+    private Map<OperatorType, OperatorSettings> operatorsSettings;
     /**
      * создание индивида с помощью метода Фишера-Йетса
      * @param individualDimension - размерность индивида
@@ -112,5 +114,13 @@ public class Individual implements Serializable {
 
     public void setObjectiveFunctionValue(Double objectiveFunctionValue) {
         this.objectiveFunctionValue = objectiveFunctionValue;
+    }
+
+    public Map<OperatorType, OperatorSettings> getOperatorsSettings() {
+        return operatorsSettings;
+    }
+
+    public void setOperatorsSettings(Map<OperatorType, OperatorSettings> operatorsSettings) {
+        this.operatorsSettings = operatorsSettings;
     }
 }
