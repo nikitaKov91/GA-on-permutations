@@ -3,6 +3,7 @@ package algorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import settings.OperatorSettings;
+import util.OperatorType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,7 +103,7 @@ public class Population {
         logger.info("Мутация в популяции. Окончание");
     }
 
-    public void calcOperatorFitness(Map<OperatorSettings, Operator> ... operators) {
+    public void calcOperatorFitness(Map<OperatorType, Map<OperatorSettings, Operator>> operators) {
         logger.info("Подсчёт пригодности операторов в популяции. Начало");
         Operator.calcOperatorFitness(individuals, operators);
         logger.info("Подсчёт пригодности операторов в популяции. Окончание");

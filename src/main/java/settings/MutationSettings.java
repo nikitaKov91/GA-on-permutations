@@ -1,15 +1,20 @@
 package settings;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.MutationProbabilityType;
 import util.MutationType;
 import util.OperatorType;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by Коваленко Никита on 03.09.2017.
  */
 public class MutationSettings implements OperatorSettings {
+
+    private static Logger logger = LoggerFactory.getLogger(MutationSettings.class);
 
     private OperatorType operatorType = OperatorType.MUTATION;
     private MutationType mutationType;
@@ -23,19 +28,45 @@ public class MutationSettings implements OperatorSettings {
         return new MutationSettings();
     }
 
-    public MutationSettings mutationType(MutationType mutationType) {
-        this.mutationType = mutationType;
+    public MutationSettings init(List<String> content) {
+        try {
+            mutationType = MutationType.valueOf(content.get(1));
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Передан неверный тип мутации: " + content.get(1) +
+                    " допустимые значения: " + Arrays.toString(MutationType.values()));
+        }
+        try {
+            mutationProbabilityType = MutationProbabilityType.valueOf(content.get(2));
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Передан неверный тип вероятности мутации: " + content.get(2) +
+                    " допустимые значения: " + Arrays.toString(MutationProbabilityType.values()));
+        }
+        calcMutationProbability();
         return this;
     }
 
-    public MutationSettings mutationProbabilityType(MutationProbabilityType mutationProbabilityType) {
-        this.mutationProbabilityType = mutationProbabilityType;
-        return this;
-    }
-
-    public MutationSettings mutationProbability(Double mutationProbability) {
-        this.mutationProbability = mutationProbability;
-        return this;
+    public void calcMutationProbability() {
+        logger.debug("Считаем вероятность мутации");
+        double probability = 0;
+        switch (mutationProbabilityType) {
+            case VERY_LOW:
+                probability = 0.2;
+                break;
+            case LOW:
+                probability = 0.5;
+                break;
+            case AVERAGE:
+                probability = 1;
+                break;
+            case HIGH:
+                probability = 1.5;
+                break;
+            case VERY_HIGH:
+                probability = 2;
+                break;
+        }
+        mutationProbability = probability;
+        logger.debug("Полученная вероятность: " + probability);
     }
 
     public String toString() {

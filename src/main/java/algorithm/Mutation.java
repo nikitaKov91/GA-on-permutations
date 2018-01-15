@@ -19,39 +19,12 @@ import static util.RandomUtils.*;
  */
 public class Mutation extends Operator {
 
-    private static Logger logger = LoggerFactory.getLogger(Problem.class);
+    private static Logger logger = LoggerFactory.getLogger(Mutation.class);
 
     private MutationSettings settings;
 
     public Mutation(MutationSettings settings) {
         this.settings = settings;
-        if (settings.getMutationType() != MutationType.BY_2_EXCHANGE) {
-            calcMutationProbability();
-        }
-    }
-
-    public void calcMutationProbability() {
-        logger.debug("Считаем вероятность мутации");
-        double probability = 0;
-        switch (settings.getMutationProbabilityType()) {
-            case VERY_LOW:
-                probability = 0.2;
-                break;
-            case LOW:
-                probability = 0.5;
-                break;
-            case AVERAGE:
-                probability = 1;
-                break;
-            case HIGH:
-                probability = 1.5;
-                break;
-            case VERY_HIGH:
-                probability = 2;
-                break;
-        }
-        settings.setMutationProbability(probability);
-        logger.debug("Полученная вероятность: " + probability);
     }
 
     public void innerMutation(Individual individual, int size) {

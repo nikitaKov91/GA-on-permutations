@@ -3,6 +3,9 @@ package settings;
 import util.OperatorType;
 import util.RecombinationType;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Created by Коваленко Никита on 03.09.2017.
  */
@@ -19,14 +22,19 @@ public class RecombinationSettings implements OperatorSettings {
         return new RecombinationSettings();
     }
 
-    public RecombinationSettings recombinationType(RecombinationType recombinationType) {
-        this.recombinationType = recombinationType;
+    public RecombinationSettings init(List<String> content) {
+        try {
+            recombinationType = RecombinationType.valueOf(content.get(1));
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Передан неверный тип рекомбинации: " + content.get(1) +
+                    " допустимые значения: " + Arrays.toString(RecombinationType.values()));
+        }
         return this;
     }
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Тип селекции: ");
+        sb.append("Тип рекомбинации: ");
         switch (recombinationType) {
             case TYPICAL:
                 sb.append("стандартная");

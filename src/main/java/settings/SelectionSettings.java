@@ -4,6 +4,9 @@ import util.OperatorType;
 import util.RankingSelectionType;
 import util.SelectionType;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Created by Коваленко Никита on 03.09.2017.
  */
@@ -22,26 +25,6 @@ public class SelectionSettings implements OperatorSettings {
 
     public static SelectionSettings create() {
         return new SelectionSettings();
-    }
-
-    public SelectionSettings selectionType(SelectionType selectionType) {
-        this.selectionType = selectionType;
-        return this;
-    }
-
-    public SelectionSettings tournamentSize(Integer tournamentSize) {
-        this.tournamentSize = tournamentSize;
-        return this;
-    }
-
-    public SelectionSettings rankingSelectionType(RankingSelectionType rankingSelectionType) {
-        this.rankingSelectionType = rankingSelectionType;
-        return this;
-    }
-
-    public SelectionSettings weight(Double weight) {
-        this.weight = weight;
-        return this;
     }
 
     public String toString() {
@@ -87,14 +70,48 @@ public class SelectionSettings implements OperatorSettings {
     @Override
     public int hashCode() {
         int result = selectionType.hashCode();
-        result = 31 * result + tournamentSize.hashCode();
-        result = 31 * result + rankingSelectionType.hashCode();
-        result = 31 * result + weight.hashCode();
+        if (tournamentSize != null) {
+            result = 31 * result + tournamentSize.hashCode();
+        }
+        if (rankingSelectionType != null) {
+            result = 31 * result + rankingSelectionType.hashCode();
+        }
+        if (weight != null) {
+            result = 31 * result + weight.hashCode();
+        }
         return result;
     }
 
     public OperatorType getOperatorType() {
         return operatorType;
+    }
+
+    public SelectionSettings init(List<String> content) {
+        try {
+            selectionType = SelectionType.valueOf(content.get(1));
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Передан неверный тип селекции: " + content.get(1) +
+                    " допустимые значения: " + Arrays.toString(SelectionType.values()));
+        }
+        switch (selectionType) {
+            case PROPORTIONAL:
+                break;
+            case RANKING:
+                try {
+                    rankingSelectionType = RankingSelectionType.valueOf(content.get(2));
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("Передан неверный тип ранговой селекции: " + content.get(2) +
+                            " допустимые значения: " + Arrays.toString(RankingSelectionType.values()));
+                }
+                if (rankingSelectionType == RankingSelectionType.EXPONENTIAL) {
+                    weight = Double.parseDouble(content.get(3));
+                }
+                break;
+            case TOURNAMENT:
+                tournamentSize = Integer.parseInt(content.get(2));
+                break;
+        }
+        return this;
     }
 
     public void setOperatorType(OperatorType operatorType) {

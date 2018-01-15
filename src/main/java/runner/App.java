@@ -20,7 +20,8 @@ public class App {
         try {
             Algorithm algorithm = new Algorithm();
             algorithm.init("C:\\Work\\projects\\GA-on-permutations\\problem0.txt",
-                    "C:\\Work\\projects\\GA-on-permutations\\settings0.txt");
+                    "C:\\Work\\projects\\GA-on-permutations\\settings0.txt",
+                    "C:\\Work\\projects\\GA-on-permutations");
             algorithm.process();
         } catch (Exception e) {
             logger.error(e.getMessage());

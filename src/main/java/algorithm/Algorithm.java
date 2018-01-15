@@ -5,8 +5,13 @@ import org.slf4j.LoggerFactory;
 import settings.*;
 import util.*;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -19,31 +24,30 @@ public class Algorithm {
     private Settings settings = new Settings();
     private Problem problem = Problem.getInstance();
     private Population population = new Population();
-
-    private Map<OperatorSettings, Operator> selections;
-    private Map<OperatorSettings, Operator> recombinations;
-    private Map<OperatorSettings, Operator> mutations;
+    private Map<OperatorType, Map<OperatorSettings, Operator>> operators = new HashMap<>();
 
     private int countOfGenerations = 0;
 
-    public void init(String problemFilePath, String settingsFilePath) throws IOException {
+    public void init(String problemFilePath, String settingsFilePath, String operatorsFolder) throws IOException {
         problem.init(problemFilePath);
         Settings.init(this, settingsFilePath);
+        initOperatorSettings(operatorsFolder);
     }
 
     public void process() {
         logger.info("Алгоритм. Начало");
-        initOperatorSettings();
         population.init(problem.getDimension());
+        /*
         do {
-            population.selection(selections);
-            population.recombination(recombinations);
-            population.mutation(mutations);
+            population.selection(operators.get(OperatorType.RECOMBINATION));
+            population.recombination(operators.get(OperatorType.SELECTION));
+            population.mutation(operators.get(OperatorType.MUTATION));
             population.calcSuitability();
             population.findBest();
-            population.calcOperatorFitness(selections, recombinations, mutations);
+            population.calcOperatorFitness(operators);
             countOfGenerations += 1;
         } while (stopCriterion());
+        */
         logger.info("Алгоритм. Окончание");
     }
 
@@ -69,82 +73,28 @@ public class Algorithm {
         return ret;
     }
 
-    private void initRecombinationSettings() {
-        recombinations = new HashMap<>(1);
-        RecombinationSettings recombinationSettings = RecombinationSettings.create()
-                .recombinationType(RecombinationType.TYPICAL);
-        recombinations.put(recombinationSettings, new Recombination(recombinationSettings));
-    }
-
-    private void initSelectionSettings() {
-        selections = new HashMap<>(8);
-        SelectionSettings selectionSettings0 = SelectionSettings.create()
-                .selectionType(SelectionType.PROPORTIONAL);
-        selections.put(selectionSettings0, new Selection(selectionSettings0));
-
-        SelectionSettings selectionSettings1 = SelectionSettings.create()
-                .selectionType(SelectionType.TOURNAMENT)
-                .tournamentSize(2);
-        selections.put(selectionSettings1, new Selection(selectionSettings1));
-        SelectionSettings selectionSettings2 = SelectionSettings.create()
-                .selectionType(SelectionType.TOURNAMENT)
-                .tournamentSize(4);
-        selections.put(selectionSettings2, new Selection(selectionSettings2));
-        SelectionSettings selectionSettings3 = SelectionSettings.create()
-                .selectionType(SelectionType.TOURNAMENT)
-                .tournamentSize(8);
-        selections.put(selectionSettings3, new Selection(selectionSettings3));
-
-        SelectionSettings selectionSettings4 = SelectionSettings.create()
-                .selectionType(SelectionType.RANKING)
-                .rankingSelectionType(RankingSelectionType.LINEAR);
-        selections.put(selectionSettings4, new Selection(selectionSettings4));
-        SelectionSettings selectionSettings5 = SelectionSettings.create()
-                .selectionType(SelectionType.RANKING)
-                .rankingSelectionType(RankingSelectionType.EXPONENTIAL)
-                .weight(0.95);
-        selections.put(selectionSettings5, new Selection(selectionSettings5));
-        SelectionSettings selectionSettings6 = SelectionSettings.create()
-                .selectionType(SelectionType.RANKING)
-                .rankingSelectionType(RankingSelectionType.EXPONENTIAL)
-                .weight(0.8);
-        selections.put(selectionSettings6, new Selection(selectionSettings6));
-        SelectionSettings selectionSettings7 = SelectionSettings.create()
-                .selectionType(SelectionType.RANKING)
-                .rankingSelectionType(RankingSelectionType.EXPONENTIAL)
-                .weight(0.5);
-        selections.put(selectionSettings7, new Selection(selectionSettings7));
-    }
-
-    private void initMutationSettings() {
-        mutations = new HashMap<>(20);
-        for (MutationType mutationType : MutationType.values()) {
-            for (MutationProbabilityType mutationProbabilityType : MutationProbabilityType.values()) {
-                MutationSettings mutationSettings = MutationSettings.create()
-                        .mutationType(mutationType)
-                        .mutationProbabilityType(mutationProbabilityType);
-                mutations.put(mutationSettings, new Mutation(mutationSettings));
-            }
-        }
-    }
-
-    private void initOperatorSettings() {
+    private void initOperatorSettings(String operatorsFolder) throws IOException {
         logger.info("Алгоритм. Инициализация настроек операторов. Начало");
 
-        // рекомбинации
-        initRecombinationSettings();
-        Operator.setOperatorsInitialProbabilities(recombinations);
-        Operator.setOperatorsDistribution(recombinations);
+        for (OperatorType operatorType : OperatorType.values()) {
+            operators.put(operatorType, new HashMap<>());
+        }
 
-        // селекции
-        initSelectionSettings();
-        Operator.setOperatorsInitialProbabilities(selections);
-        Operator.setOperatorsDistribution(selections);
+        int operatorsCount = 0;
+        File operatorFile = new File(operatorsFolder + "\\operator" + operatorsCount + ".txt");
+        while (operatorFile.exists()) {
+            List<String> content = Files.readAllLines(Paths.get(operatorFile.getAbsolutePath()));
+            Operator operator = OperatorFactory.createOperator(content);
+            OperatorSettings operatorSettings = operator.getSettings();
+            operators.get(operatorSettings.getOperatorType()).put(operatorSettings, operator);
+            operatorsCount++;
+            operatorFile = new File(operatorsFolder + "\\operator" + operatorsCount + ".txt");
+        }
 
-        // мутации
-        initMutationSettings();
-        Operator.setOperatorsInitialProbabilities(mutations);
-        Operator.setOperatorsDistribution(mutations);
+        for (Map.Entry<OperatorType, Map<OperatorSettings, Operator>> entry : operators.entrySet()) {
+            Operator.setOperatorsInitialProbabilities(entry.getValue());
+            Operator.setOperatorsDistribution(entry.getValue());
+        }
 
         logger.info("Алгоритм. Инициализация настроек операторов. Окончание");
     }

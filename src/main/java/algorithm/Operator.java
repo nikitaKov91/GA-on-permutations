@@ -2,10 +2,7 @@ package algorithm;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import settings.MutationSettings;
 import settings.OperatorSettings;
-import settings.RecombinationSettings;
-import settings.SelectionSettings;
 import util.OperatorType;
 import util.RandomUtils;
 
@@ -99,47 +96,28 @@ public abstract class Operator {
         return result;
     }
 
-    public static void calcOperatorFitness(List<Individual> individuals, Map<OperatorSettings, Operator> ... operators) {
-        // для начала определяем индекс каждого типа операторов
-        int selectionIndex = 0;
-        int recombinationIndex = 1;
-        int mutationIndex = 2;
-        for (int i = 0; i < operators.length; i++) {
-            OperatorSettings operatorSettings = operators[i].keySet().iterator().next();
-            if (operatorSettings.getOperatorType() == OperatorType.SELECTION) {
-                selectionIndex = i;
-            } else if (operatorSettings.getOperatorType() == OperatorType.RECOMBINATION) {
-                recombinationIndex = i;
-            } else if (operatorSettings.getOperatorType() == OperatorType.MUTATION) {
-                mutationIndex = i;
-            }
-        }
+    public static void calcOperatorFitness(List<Individual> individuals, Map<OperatorType, Map<OperatorSettings, Operator>> operators) {
         // обнуляем пригодность и кол-во индивидов
-        for (int i = 0; i < operators.length; i++) {
-            for (Map.Entry<OperatorSettings, Operator> entry : operators[i].entrySet()) {
-                entry.getValue().fitness = 0.0;
-                entry.getValue().amountOfIndividuals = 0;
+        for (Map.Entry<OperatorType, Map<OperatorSettings, Operator>> entry : operators.entrySet()) {
+            for (Map.Entry<OperatorSettings, Operator> operator : entry.getValue().entrySet()) {
+                operator.getValue().fitness = 0.0;
+                operator.getValue().amountOfIndividuals = 0;
             }
         }
         // считаем кол-во индивидов по определённому оператору и сумму их пригодностей
         for (Individual individual : individuals) {
-            for (int i = 0; i < operators.length; i++) {
-                Operator operator = null;
-                if (i == selectionIndex) {
-                    operator = operators[i].get(individual.getOperatorsSettings().get(OperatorType.SELECTION));
-                } else if (i == recombinationIndex) {
-                    operator = operators[i].get(individual.getOperatorsSettings().get(OperatorType.RECOMBINATION));
-                } else if (i == mutationIndex) {
-                    operator = operators[i].get(individual.getOperatorsSettings().get(OperatorType.MUTATION));
-                }
+            for (Map.Entry<OperatorType, Map<OperatorSettings, Operator>> entry : operators.entrySet()) {
+                // в общей мапе ключ - тип оператора, в мапе индвида - такой же
+                OperatorSettings operatorSettings = individual.getOperatorsSettings().get(entry.getKey());
+                Operator operator = entry.getValue().get(operatorSettings);
                 operator.amountOfIndividuals += 1;
                 operator.fitness += individual.getSuitability();
             }
         }
         // считаем среднюю пригодность
-        for (int i = 0; i < operators.length; i++) {
-            for (Map.Entry<OperatorSettings, Operator> entry : operators[i].entrySet()) {
-                entry.getValue().fitness /= entry.getValue().amountOfIndividuals;
+        for (Map.Entry<OperatorType, Map<OperatorSettings, Operator>> entry : operators.entrySet()) {
+            for (Map.Entry<OperatorSettings, Operator> operator : entry.getValue().entrySet()) {
+                operator.getValue().fitness /= operator.getValue().amountOfIndividuals;
             }
         }
     }
