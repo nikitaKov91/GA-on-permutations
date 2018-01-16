@@ -55,6 +55,10 @@ public abstract class Operator {
 
     public abstract OperatorSettings getSettings();
 
+    public abstract void apply(Individual individual);
+
+    public abstract void apply(List<Individual> individuals,  List<Individual> parents, int param);
+
     public static void setOperatorsInitialProbabilities(Map<OperatorSettings, Operator> operators) {
         logger.debug("Задание изначальных вероятностей операторов. Начало");
         double probability = 1.0/operators.size();

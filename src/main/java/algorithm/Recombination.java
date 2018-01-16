@@ -21,28 +21,17 @@ public class Recombination extends Operator {
         this.settings = settings;
     }
 
-    public List<Individual> recombine(List<Individual> individuals, Integer individualsAmount) {
-        logger.info(settings.toString());
-        switch (settings.getRecombinationType()) {
-            case TYPICAL:
-                return typicalRecombination(individuals, individualsAmount);
-        }
-        return individuals;
-    }
-
-    private List<Individual> typicalRecombination(List<Individual> individuals, Integer individualsAmount) {
-        int size = individuals.get(0).getDimension();
-        List<Individual> children = new ArrayList<>();
+    private void typicalRecombination(List<Individual> individuals, List<Individual> parents, int index) {
+        int size = parents.get(0).getDimension();
+        Individual child = null;
         // выбираем родителей попарно
-        for (int i = 0; i < individualsAmount * 2; i += 2) {
-            Boolean whoIsFirst = RandomUtils.random.nextBoolean();
-            if (whoIsFirst) {
-                children.add(generateChild(individuals.get(i), individuals.get(i + 1), size));
-            } else {
-                children.add(generateChild(individuals.get(i + 1), individuals.get(i), size));
-            }
+        Boolean whoIsFirst = RandomUtils.random.nextBoolean();
+        if (whoIsFirst) {
+            child = generateChild(parents.get(index), parents.get(index + 1), size);
+        } else {
+            child = generateChild(parents.get(index + 1), parents.get(index), size);
         }
-        return children;
+        individuals.add(child);
     }
 
     private Individual generateChild(Individual parent0, Individual parent1, int size) {
@@ -91,6 +80,21 @@ public class Recombination extends Operator {
 
     public RecombinationSettings getSettings() {
         return settings;
+    }
+
+    @Override
+    public void apply(Individual individual) {
+        throw new IllegalArgumentException("Рекомендация не может быть применена с таким набором аргументов");
+    }
+
+    @Override
+    public void apply(List<Individual> individuals, List<Individual> parents, int index) {
+        logger.info(settings.toString());
+        switch (settings.getRecombinationType()) {
+            case TYPICAL:
+                typicalRecombination(individuals, parents, index);
+                break;
+        }
     }
 
     public void setSettings(RecombinationSettings settings) {

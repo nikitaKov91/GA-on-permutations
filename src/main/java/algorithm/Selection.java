@@ -23,29 +23,14 @@ public class Selection extends Operator {
         this.settings = settings;
     }
 
-    public List<Individual> select(List<Individual> individuals, int individualsAmount) {
-        logger.info(settings.toString());
-        logger.info("Нужное количество родителей: " + individualsAmount * 2);
-        switch (settings.getSelectionType()) {
-            case PROPORTIONAL:
-                return proportionalSelection(individuals, individualsAmount);
-            case RANKING:
-                return rankingSelection(individuals, individualsAmount);
-            case TOURNAMENT:
-                return tournamentSelection(individuals, individualsAmount);
-        }
-        return individuals;
-    }
-
-    private List<Individual> proportionalSelection(List<Individual> individuals, int individualsAmount) {
-        List<Individual> parents = new ArrayList<>(individualsAmount * 2);
+    private void proportionalSelection(List<Individual> individuals, List<Individual> parents, int parentsAmount) {
         // считаем суммарную пригодность
         double summarySuitability = 0;
         for (Individual individual : individuals) {
             summarySuitability += individual.getSuitability();
         }
         // набираем родителей
-        for (int i = 0; i < individualsAmount * 2; i++) {
+        for (int i = 0; i < parentsAmount; i++) {
             double rollDice = summarySuitability * RandomUtils.random.nextDouble();
             double localSummary = 0;
             for (Individual individual : individuals) {
@@ -57,7 +42,6 @@ public class Selection extends Operator {
                 }
             }
         }
-        return parents;
     }
 
     class IndividualWrapper {
@@ -87,15 +71,15 @@ public class Selection extends Operator {
 
     }
 
-    private void linearSelectionRanking(List<IndividualWrapper> individualsSorted, int individualsAmount) {
+    private void linearSelectionRanking(List<IndividualWrapper> individualsSorted) {
         // проставляем ранги
         int i = 0;
-        while (i < individualsAmount) {
+        while (i < individualsSorted.size()) {
             double suitability = individualsSorted.get(i).individual.getSuitability();
             int j = i + 1;
             int count = 1;
             // считаем количество индивидов с такой же пригодностью
-            while (j < individualsAmount && suitability == individualsSorted.get(j).individual.getSuitability()) {
+            while (j < individualsSorted.size() && suitability == individualsSorted.get(j).individual.getSuitability()) {
                 count += 1;
                 j += 1;
             }
@@ -115,41 +99,40 @@ public class Selection extends Operator {
         }
     }
 
-    private void exponentialSelectionRanking(List<IndividualWrapper> individualsSorted, int individualsAmount) {
+    private void exponentialSelectionRanking(List<IndividualWrapper> individualsSorted) {
         // проставляем ранги
-        int i = individualsAmount - 1;
+        int i = individualsSorted.size() - 1;
         while (i > 0) {
-            individualsSorted.get(i).rank = initialWeight * Math.pow(settings.getWeight(), individualsAmount - i - 1);
+            individualsSorted.get(i).rank = initialWeight * Math.pow(settings.getWeight(), individualsSorted.size() - i - 1);
             i -= 1;
         }
     }
 
-    private List<IndividualWrapper> getSortAndRankedIndividuals(List<Individual> individuals, int individualsAmount) {
+    private List<IndividualWrapper> getSortAndRankedIndividuals(List<Individual> individuals) {
         // оборачиваем инивида, добавляя ранг
-        List<IndividualWrapper> individualsSorted = new ArrayList<>(individualsAmount);
+        List<IndividualWrapper> individualsSorted = new ArrayList<>(individuals.size());
         for (Individual individual : individuals) {
             individualsSorted.add(new IndividualWrapper(individual));
         }
         // упорядочиваем индивидов по возрастанию пригодности
         Collections.sort(individualsSorted, new IndividualWrapperComparator());
         if (settings.getRankingSelectionType() == RankingSelectionType.EXPONENTIAL) {
-            exponentialSelectionRanking(individualsSorted, individualsAmount);
+            exponentialSelectionRanking(individualsSorted);
         } else if (settings.getRankingSelectionType() == RankingSelectionType.LINEAR) {
-            linearSelectionRanking(individualsSorted, individualsAmount);
+            linearSelectionRanking(individualsSorted);
         }
         return individualsSorted;
     }
 
-    private List<Individual> rankingSelection(List<Individual> individuals, int individualsAmount) {
-        List<Individual> parents = new ArrayList<>(individualsAmount * 2);
-        List<IndividualWrapper> individualsSorted = getSortAndRankedIndividuals(individuals, individualsAmount);
+    private void rankingSelection(List<Individual> individuals, List<Individual> parents, int parentsAmount) {
+        List<IndividualWrapper> individualsSorted = getSortAndRankedIndividuals(individuals);
         // считаем суммарную пригодность
         double summaryRank = 0;
         for (IndividualWrapper individualWrapper : individualsSorted) {
             summaryRank += individualWrapper.rank;
         }
         // набираем родителей
-        for (int i = 0; i < individualsAmount * 2; i++) {
+        for (int i = 0; i < parentsAmount; i++) {
             double rollDice = summaryRank * RandomUtils.random.nextDouble();
             double localSummary = 0;
             for (IndividualWrapper individualWrapper : individualsSorted) {
@@ -161,18 +144,15 @@ public class Selection extends Operator {
                 }
             }
         }
-        return parents;
     }
 
     /**
      * турнирная селекция, выбор K индивидов из N и взятие лучшего из K
      * @param individuals - популяция индивидов
-     * @param individualsAmount - кол-во индивидов
-     * @return отобранные родители
+     * @param parentsAmount - необходимое кол-во родителей
      */
-    private List<Individual> tournamentSelection(List<Individual> individuals, int individualsAmount) {
-        List<Individual> parents = new ArrayList<>(individualsAmount * 2);
-        for (int i = 0; i < individualsAmount * 2; i++) {
+    private void tournamentSelection(List<Individual> individuals, List<Individual> parents, int parentsAmount) {
+        for (int i = 0; i < parentsAmount; i++) {
             int maxIndex = 0;
             Double maxSuitability = 0d;
             List<Integer> indexes = new ArrayList<>();
@@ -191,11 +171,32 @@ public class Selection extends Operator {
             logger.debug("Его пригодность: " + chosen.getSuitability());
             parents.add(chosen);
         }
-        return parents;
     }
 
     public SelectionSettings getSettings() {
         return settings;
+    }
+
+    @Override
+    public void apply(Individual individual) {
+        throw new IllegalArgumentException("Селекция не может быть применена с таким набором аргументов");
+    }
+
+    @Override
+    public void apply(List<Individual> individuals, List<Individual> parents, int parentsAmount) {
+        logger.info(settings.toString());
+        logger.info("Нужное количество родителей: " + parentsAmount);
+        switch (settings.getSelectionType()) {
+            case PROPORTIONAL:
+                proportionalSelection(individuals, parents, parentsAmount);
+                break;
+            case RANKING:
+                rankingSelection(individuals, parents, parentsAmount);
+                break;
+            case TOURNAMENT:
+                tournamentSelection(individuals, parents, parentsAmount);
+                break;
+        }
     }
 
 }

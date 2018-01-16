@@ -41,22 +41,6 @@ public class Mutation extends Operator {
         logger.debug("Полученный индивид: " + individual.toString());
     }
 
-    public void mutate(Individual individual) {
-        logger.info(settings.toString());
-        individual.getOperatorsSettings().put(OperatorType.MUTATION, settings);
-        int size = individual.getDimension();
-        if (isRunMutation(settings.getMutationProbability())) {
-            innerMutation(individual, size);
-        }
-        // при вероятности мутации 1.5 индивид мутирует второй раз с вероятностью 50%,
-        // при вероятности мутации 2 индивид всегда мутирует дважды
-        if (settings.getMutationProbability() > 1) {
-            if (isRunMutation(settings.getMutationProbability() - 1)) {
-                innerMutation(individual, size);
-            }
-        }
-    }
-
     public void mutationBy2Exchange(Individual individual, int size) {
         int index0 = getRandomIndexExclude(null, size);
         int index1 = getRandomIndexExclude(null, size);
@@ -171,6 +155,28 @@ public class Mutation extends Operator {
 
     public MutationSettings getSettings() {
         return settings;
+    }
+
+    @Override
+    public void apply(List<Individual> individuals, List<Individual> parents, int parentsAmountl) {
+        throw new IllegalArgumentException("Мутация не может быть применена с таким набором аргументов");
+    }
+
+    @Override
+    public void apply(Individual individual) {
+        logger.info(settings.toString());
+        individual.getOperatorsSettings().put(OperatorType.MUTATION, settings);
+        int size = individual.getDimension();
+        if (isRunMutation(settings.getMutationProbability())) {
+            innerMutation(individual, size);
+        }
+        // при вероятности мутации 1.5 индивид мутирует второй раз с вероятностью 50%,
+        // при вероятности мутации 2 индивид всегда мутирует дважды
+        if (settings.getMutationProbability() > 1) {
+            if (isRunMutation(settings.getMutationProbability() - 1)) {
+                innerMutation(individual, size);
+            }
+        }
     }
 
 }

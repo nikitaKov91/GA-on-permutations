@@ -82,25 +82,32 @@ public class Population {
         logger.info("Выбор лучшего индивида в популяции. Окончание");
     }
 
-    public void selection(Map<OperatorSettings, Operator> selections) {
-        logger.info("Селекция в популяции. Начало");
-        // parents = selection.select(individuals, individualsAmount);
-        logger.info("Селекция в популяции. Окончание");
-    }
-
-    public void recombination(Map<OperatorSettings, Operator> recombinations) {
-        logger.info("Рекомбинация в популяции. Начало");
-        // individuals = recombination.recombine(parents, individualsAmount);
-        logger.info("Рекомбинация в популяции. Окончание");
-    }
-
-    public void mutation(Map<OperatorSettings, Operator> mutations) {
-        logger.info("Мутация в популяции. Начало");
-        for (Individual individual : individuals) {
-            Mutation mutation = (Mutation) Operator.selectOperator(mutations);
-            mutation.mutate(individual);
+    public void applyOperator(OperatorType operatorType, Map<OperatorType, Map<OperatorSettings, Operator>> operators) {
+        Operator operator = Operator.selectOperator(operators.get(operatorType));
+        switch (operatorType) {
+            case SELECTION:
+                logger.info("Селекция в популяции. Начало");
+                for (int i = 0; i < individualsAmount; i++) {
+                    operator.apply(individuals, parents, 2);
+                }
+                logger.info("Селекция в популяции. Окончание");
+                break;
+            case RECOMBINATION:
+                logger.info("Рекомбинация в популяции. Начало");
+                individuals.clear();
+                for (int i = 0; i < parents.size(); i += 2) {
+                    operator.apply(individuals, parents, i);
+                }
+                logger.info("Рекомбинация в популяции. Окончание");
+                break;
+            case MUTATION:
+                logger.info("Мутация в популяции. Начало");
+                for (Individual individual : individuals) {
+                    operator.apply(individual);
+                }
+                logger.info("Мутация в популяции. Окончание");
+                break;
         }
-        logger.info("Мутация в популяции. Окончание");
     }
 
     public void calcOperatorFitness(Map<OperatorType, Map<OperatorSettings, Operator>> operators) {

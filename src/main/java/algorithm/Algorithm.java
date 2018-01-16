@@ -37,17 +37,15 @@ public class Algorithm {
     public void process() {
         logger.info("Алгоритм. Начало");
         population.init(problem.getDimension());
-        /*
         do {
-            population.selection(operators.get(OperatorType.RECOMBINATION));
-            population.recombination(operators.get(OperatorType.SELECTION));
-            population.mutation(operators.get(OperatorType.MUTATION));
+            for (OperatorType operatorType : OperatorType.values()) {
+                population.applyOperator(operatorType, operators);
+            }
             population.calcSuitability();
             population.findBest();
             population.calcOperatorFitness(operators);
             countOfGenerations += 1;
         } while (stopCriterion());
-        */
         logger.info("Алгоритм. Окончание");
     }
 
