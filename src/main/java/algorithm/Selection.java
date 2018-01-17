@@ -101,9 +101,18 @@ public class Selection extends Operator {
 
     private void exponentialSelectionRanking(List<IndividualWrapper> individualsSorted) {
         // проставляем ранги
-        int i = individualsSorted.size() - 1;
+        int size = individualsSorted.size();
+        int i = size - 1;
+        double suitability = -1;
+        double rank = -1;
         while (i > 0) {
-            individualsSorted.get(i).rank = initialWeight * Math.pow(settings.getWeight(), individualsSorted.size() - i - 1);
+            if (suitability == individualsSorted.get(i).individual.getSuitability()) {
+                individualsSorted.get(i).rank = rank;
+            } else {
+                rank = initialWeight * Math.pow(settings.getWeight(), size - i - 1);
+                suitability = individualsSorted.get(i).individual.getSuitability();
+                individualsSorted.get(i).rank = rank;
+            }
             i -= 1;
         }
     }
