@@ -4,13 +4,14 @@ import util.OperatorType;
 import util.RankingSelectionType;
 import util.SelectionType;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
 /**
  * Created by Коваленко Никита on 03.09.2017.
  */
-public class SelectionSettings implements OperatorSettings {
+public class SelectionSettings implements OperatorSettings, Serializable {
 
     private OperatorType operatorType = OperatorType.SELECTION;
     private SelectionType selectionType;
@@ -62,7 +63,7 @@ public class SelectionSettings implements OperatorSettings {
         SelectionSettings that = (SelectionSettings) o;
 
         if (selectionType != that.selectionType) return false;
-        if (!tournamentSize.equals(that.tournamentSize)) return false;
+        if (tournamentSize != null && !tournamentSize.equals(that.tournamentSize)) return false;
         if (rankingSelectionType != that.rankingSelectionType) return false;
         return weight.equals(that.weight);
     }

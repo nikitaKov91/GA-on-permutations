@@ -14,6 +14,8 @@ import java.util.Map;
  */
 public abstract class Operator {
 
+    public static final double MIN_OPERATOR_PROBABILITY = 0.05d;
+
     private static Logger logger = LoggerFactory.getLogger(Operator.class);
 
     private Double probability;
@@ -59,6 +61,16 @@ public abstract class Operator {
 
     public abstract void apply(List<Individual> individuals,  List<Individual> parents, int param);
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Operator operator = (Operator) o;
+
+        return getSettings().equals(operator.getSettings());
+    }
+
     public static void setOperatorsInitialProbabilities(Map<OperatorSettings, Operator> operators) {
         logger.debug("Задание изначальных вероятностей операторов. Начало");
         double probability = 1.0/operators.size();
@@ -67,6 +79,41 @@ public abstract class Operator {
             entry.getValue().setProbability(probability);
         }
         logger.debug("Задание изначальных вероятностей операторов. Окончание");
+    }
+
+    public static void setOperatorsProbabilities(Map<OperatorSettings, Operator> operators, int generationsAmount) {
+        logger.debug("Задание вероятностей операторов. Начало");
+        double maxFitness = 0;
+        Operator bestOperator = null;
+        for (Map.Entry<OperatorSettings, Operator> entry : operators.entrySet()) {
+            Operator operator = entry.getValue();
+            if (operator.fitness > maxFitness) {
+                maxFitness = operator.fitness;
+                bestOperator = operator;
+            }
+        }
+        logger.debug("Лучший оператор: " + bestOperator);
+
+        // вероятности всех остальных операторов уменьшаются на K /(z * N)),
+        // где N – число поколений, K – константа, обычно равная 2
+        double reduceProbability = 2 / (operators.size() * generationsAmount);
+        double increaseProbability = 0;
+        for (Map.Entry<OperatorSettings, Operator> entry : operators.entrySet()) {
+            Operator operator = entry.getValue();
+            if (!operator.equals(bestOperator)) {
+                // необходимо установить порог вероятности т.к. ни у одного варианта оператора не может быть нулевой вероятности
+                // при достижении минимально возможного значения вероятности вариант оператора перестает отдавать свою часть в пользу лучшего
+                if (operator.probability - reduceProbability <= MIN_OPERATOR_PROBABILITY) {
+                    increaseProbability += operator.probability - MIN_OPERATOR_PROBABILITY;
+                    operator.probability = MIN_OPERATOR_PROBABILITY;
+                } else {
+                    increaseProbability += reduceProbability;
+                    operator.probability -= reduceProbability;
+                }
+            }
+        }
+        bestOperator.fitness += increaseProbability;
+        logger.debug("Задание вероятностей операторов. Окончание");
     }
 
     public static void setOperatorsDistribution(Map<OperatorSettings, Operator> operators) {

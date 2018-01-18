@@ -43,7 +43,8 @@ public class Algorithm {
             }
             population.calcSuitability();
             population.findBest();
-            population.calcOperatorFitness(operators);
+            population.calcOperatorsFitness(operators);
+            population.configureOperators(operators, settings.getGenerationsAmount());
             countOfGenerations += 1;
         } while (stopCriterion());
         logger.info("Алгоритм. Окончание");
@@ -53,7 +54,7 @@ public class Algorithm {
         logger.info("Алгоритм. Проверка критерия остановки. Начало");
         logger.info("Поколение " + countOfGenerations);
         boolean ret = true;
-        if (countOfGenerations >= settings.getAmountOfGenerations()) {
+        if (countOfGenerations >= settings.getGenerationsAmount()) {
             logger.info("Достигнут максимум итераций");
             ret = false;
         }

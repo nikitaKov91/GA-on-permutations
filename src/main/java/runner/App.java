@@ -18,11 +18,16 @@ public class App {
 
     public static void main(String[] args) {
         try {
-            Algorithm algorithm = new Algorithm();
-            algorithm.init("C:\\Work\\projects\\GA-on-permutations\\problem0.txt",
-                    "C:\\Work\\projects\\GA-on-permutations\\settings0.txt",
-                    "C:\\Work\\projects\\GA-on-permutations");
-            algorithm.process();
+            List<String> result = new ArrayList<>();
+            for (int i = 0; i <= 99; i++) {
+                Algorithm algorithm = new Algorithm();
+                algorithm.init("C:\\Work\\projects\\GA-on-permutations\\problem1.txt",
+                        "C:\\Work\\projects\\GA-on-permutations\\settings0.txt",
+                        "C:\\Work\\projects\\GA-on-permutations");
+                algorithm.process();
+                result.add(String.valueOf(algorithm.getPopulation().getBestIndividual().getObjectiveFunctionValue()));
+            }
+            Files.write(Paths.get("C:\\Work\\projects\\GA-on-permutations\\result-0.txt"), result);
         } catch (Exception e) {
             logger.error(e.getMessage());
             e.printStackTrace();

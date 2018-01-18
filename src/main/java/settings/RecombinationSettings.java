@@ -3,13 +3,14 @@ package settings;
 import util.OperatorType;
 import util.RecombinationType;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
 /**
  * Created by Коваленко Никита on 03.09.2017.
  */
-public class RecombinationSettings implements OperatorSettings {
+public class RecombinationSettings implements OperatorSettings, Serializable {
 
     private OperatorType operatorType = OperatorType.RECOMBINATION;
 

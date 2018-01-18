@@ -17,7 +17,7 @@ public class Population {
 
     private static Logger logger = LoggerFactory.getLogger(Population.class);
 
-    private List<Individual> parents;
+    private List<Individual> parents = new ArrayList<>();
     private List<Individual> individuals;
     private Individual bestIndividual;
     private Integer individualsAmount;
@@ -87,6 +87,7 @@ public class Population {
         switch (operatorType) {
             case SELECTION:
                 logger.info("Селекция в популяции. Начало");
+                parents.clear();
                 for (int i = 0; i < individualsAmount; i++) {
                     operator.apply(individuals, parents, 2);
                 }
@@ -110,9 +111,18 @@ public class Population {
         }
     }
 
-    public void calcOperatorFitness(Map<OperatorType, Map<OperatorSettings, Operator>> operators) {
+    public void calcOperatorsFitness(Map<OperatorType, Map<OperatorSettings, Operator>> operators) {
         logger.info("Подсчёт пригодности операторов в популяции. Начало");
         Operator.calcOperatorFitness(individuals, operators);
+        logger.info("Подсчёт пригодности операторов в популяции. Окончание");
+    }
+
+    public void configureOperators(Map<OperatorType, Map<OperatorSettings, Operator>> operators, int generationsAmount) {
+        logger.info("Подсчёт пригодности операторов в популяции. Начало");
+        for (Map.Entry<OperatorType, Map<OperatorSettings, Operator>> entry : operators.entrySet()) {
+            Operator.setOperatorsProbabilities(entry.getValue(), generationsAmount);
+            Operator.setOperatorsDistribution(entry.getValue());
+        }
         logger.info("Подсчёт пригодности операторов в популяции. Окончание");
     }
 

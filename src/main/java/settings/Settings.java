@@ -16,7 +16,7 @@ public class Settings {
 
     private static Logger logger = LoggerFactory.getLogger(Settings.class);
 
-    private int amountOfGenerations;
+    private int generationsAmount;
     private Double accuracy;
 
     public static void init(Algorithm algorithm, String filePath) throws IOException {
@@ -25,9 +25,9 @@ public class Settings {
         List<String> content = Files.readAllLines(Paths.get(filePath));
         algorithm.getPopulation().setIndividualsAmount(Integer.parseInt(content.get(0)));
         logger.info("Количество индивидов в популяции: " + content.get(0));
-        algorithm.getSettings().setAmountOfGenerations(Integer.parseInt(content.get(1)));
+        algorithm.getSettings().generationsAmount = Integer.parseInt(content.get(1));
         logger.info("Максимальное количество итераций: " + content.get(1));
-        algorithm.getSettings().setAccuracy(Double.parseDouble(content.get(2)));
+        algorithm.getSettings().accuracy = Double.parseDouble(content.get(2));
         logger.info("Точность: " + content.get(2));
         logger.info("Инициализация настроек. Окончание");
     }
@@ -40,12 +40,11 @@ public class Settings {
         this.accuracy = accuracy;
     }
 
-    public int getAmountOfGenerations() {
-        return amountOfGenerations;
+    public int getGenerationsAmount() {
+        return generationsAmount;
     }
 
-    public void setAmountOfGenerations(int amountOfGenerations) {
-        this.amountOfGenerations = amountOfGenerations;
+    public void setGenerationsAmount(int generationsAmount) {
+        this.generationsAmount = generationsAmount;
     }
-
 }

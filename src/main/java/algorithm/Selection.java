@@ -3,6 +3,7 @@ package algorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import settings.SelectionSettings;
+import util.OperatorType;
 import util.RandomUtils;
 import util.RankingSelectionType;
 
@@ -23,6 +24,13 @@ public class Selection extends Operator {
         this.settings = settings;
     }
 
+    @Override
+    public String toString() {
+        return "Selection{" +
+                "settings=" + settings +
+                '}';
+    }
+
     private void proportionalSelection(List<Individual> individuals, List<Individual> parents, int parentsAmount) {
         // считаем суммарную пригодность
         double summarySuitability = 0;
@@ -37,6 +45,7 @@ public class Selection extends Operator {
                 // если суммарная пригодность меньше выброшенного числа - индивид становится родителем
                 localSummary += individual.getSuitability();
                 if (localSummary >= rollDice) {
+                    individual.getOperatorsSettings().put(OperatorType.SELECTION, settings);
                     parents.add(individual);
                     break;
                 }
@@ -91,7 +100,7 @@ public class Selection extends Operator {
             rank /= count;
             individualsSorted.get(i).rank = rank;
             if (count > 1) {
-                for (int k = 1; k <= count; k++) {
+                for (int k = 1; k < count; k++) {
                     individualsSorted.get(i + k).rank = rank;
                 }
             }
@@ -148,6 +157,7 @@ public class Selection extends Operator {
                 // если суммарная пригодность меньше выброшенного числа - индивид становится родителем
                 localSummary += individualWrapper.rank;
                 if (localSummary >= rollDice) {
+                    individualWrapper.individual.getOperatorsSettings().put(OperatorType.SELECTION, settings);
                     parents.add(individualWrapper.individual);
                     break;
                 }
@@ -176,6 +186,7 @@ public class Selection extends Operator {
                 }
             }
             Individual chosen = individuals.get(maxIndex);
+            chosen.getOperatorsSettings().put(OperatorType.SELECTION, settings);
             logger.debug("Отобранный индивид: " + chosen.toString());
             logger.debug("Его пригодность: " + chosen.getSuitability());
             parents.add(chosen);

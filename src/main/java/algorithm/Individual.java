@@ -24,7 +24,7 @@ public class Individual implements Serializable {
     private Double objectiveFunctionValue;
     private Double suitability;
     private int dimension;
-    private Map<OperatorType, OperatorSettings> operatorsSettings;
+    private Map<OperatorType, OperatorSettings> operatorsSettings = new HashMap<>();
     /**
      * создание индивида с помощью метода Фишера-Йетса
      * @param individualDimension - размерность индивида

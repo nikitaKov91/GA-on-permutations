@@ -27,6 +27,13 @@ public class Mutation extends Operator {
         this.settings = settings;
     }
 
+    @Override
+    public String toString() {
+        return "Mutation{" +
+                "settings=" + settings +
+                '}';
+    }
+
     public void innerMutation(Individual individual, int size) {
         logger.debug("Запускаем мутацию индивида: " + individual.toString());
         if (settings.getMutationType() == MutationType.BY_2_EXCHANGE) {

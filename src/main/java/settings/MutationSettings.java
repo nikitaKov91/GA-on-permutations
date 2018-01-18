@@ -6,13 +6,14 @@ import util.MutationProbabilityType;
 import util.MutationType;
 import util.OperatorType;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
 /**
  * Created by Коваленко Никита on 03.09.2017.
  */
-public class MutationSettings implements OperatorSettings {
+public class MutationSettings implements OperatorSettings, Serializable {
 
     private static Logger logger = LoggerFactory.getLogger(MutationSettings.class);
 

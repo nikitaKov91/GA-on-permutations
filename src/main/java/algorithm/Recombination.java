@@ -3,9 +3,11 @@ package algorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import settings.RecombinationSettings;
+import util.OperatorType;
 import util.RandomUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -21,9 +23,16 @@ public class Recombination extends Operator {
         this.settings = settings;
     }
 
+    @Override
+    public String toString() {
+        return "Recombination{" +
+                "settings=" + settings +
+                '}';
+    }
+
     private void typicalRecombination(List<Individual> individuals, List<Individual> parents, int index) {
         int size = parents.get(0).getDimension();
-        Individual child = null;
+        Individual child;
         // выбираем родителей попарно
         Boolean whoIsFirst = RandomUtils.random.nextBoolean();
         if (whoIsFirst) {
@@ -59,6 +68,10 @@ public class Recombination extends Operator {
         }
         child.setDimension(size);
         child.setPhenotype(phenotype);
+        for (OperatorType operatorType : parent0.getOperatorsSettings().keySet()) {
+            child.getOperatorsSettings().put(operatorType, parent1.getOperatorsSettings().get(operatorType));
+        }
+        child.getOperatorsSettings().put(OperatorType.RECOMBINATION, settings);
         logger.debug("Полученный ребёнок: " + child.toString());
         return child;
     }
