@@ -42,7 +42,7 @@ public class SelectionSettings implements OperatorSettings, Serializable {
                         sb.append("линейная");
                         break;
                     case EXPONENTIAL:
-                        sb.append("экспоненциальная.");
+                        sb.append("экспоненциальная");
                         sb.append(". Вес: " + weight);
                         break;
                 }

@@ -83,12 +83,12 @@ public class Population {
     }
 
     public void applyOperator(OperatorType operatorType, Map<OperatorType, Map<OperatorSettings, Operator>> operators) {
-        Operator operator = Operator.selectOperator(operators.get(operatorType));
         switch (operatorType) {
             case SELECTION:
                 logger.info("Селекция в популяции. Начало");
                 parents.clear();
                 for (int i = 0; i < individualsAmount; i++) {
+                    Operator operator = Operator.selectOperator(operators.get(operatorType));
                     operator.apply(individuals, parents, 2);
                 }
                 logger.info("Селекция в популяции. Окончание");
@@ -97,6 +97,7 @@ public class Population {
                 logger.info("Рекомбинация в популяции. Начало");
                 individuals.clear();
                 for (int i = 0; i < parents.size(); i += 2) {
+                    Operator operator = Operator.selectOperator(operators.get(operatorType));
                     operator.apply(individuals, parents, i);
                 }
                 logger.info("Рекомбинация в популяции. Окончание");
@@ -104,6 +105,7 @@ public class Population {
             case MUTATION:
                 logger.info("Мутация в популяции. Начало");
                 for (Individual individual : individuals) {
+                    Operator operator = Operator.selectOperator(operators.get(operatorType));
                     operator.apply(individual);
                 }
                 logger.info("Мутация в популяции. Окончание");
