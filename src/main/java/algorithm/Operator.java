@@ -112,7 +112,7 @@ public abstract class Operator {
                 }
             }
         }
-        bestOperator.fitness += increaseProbability;
+        bestOperator.probability += increaseProbability;
         logger.debug("Задание вероятностей операторов. Окончание");
     }
 
@@ -135,7 +135,7 @@ public abstract class Operator {
         } else {
             double random = RandomUtils.random.nextDouble();
             for (Map.Entry<OperatorSettings, Operator> entry : operators.entrySet()) {
-                if (entry.getValue().getDistribution() > random) {
+                if (entry.getValue().getDistribution() >= random) {
                     result = entry.getValue();
                     break;
                 }
@@ -162,13 +162,16 @@ public abstract class Operator {
                 OperatorSettings operatorSettings = individual.getOperatorsSettings().get(entry.getKey());
                 Operator operator = entry.getValue().get(operatorSettings);
                 operator.amountOfIndividuals += 1;
-                operator.fitness += individual.getSuitability();
+                operator.fitness += individual.getFitness();
             }
         }
         // считаем среднюю пригодность
         for (Map.Entry<OperatorType, Map<OperatorSettings, Operator>> entry : operators.entrySet()) {
             for (Map.Entry<OperatorSettings, Operator> operator : entry.getValue().entrySet()) {
-                operator.getValue().fitness /= operator.getValue().amountOfIndividuals;
+                int amountOfIndividuals = operator.getValue().amountOfIndividuals;
+                if (amountOfIndividuals != 0) {
+                    operator.getValue().fitness /= amountOfIndividuals;
+                }
             }
         }
     }

@@ -22,7 +22,7 @@ public class Individual implements Serializable {
 
     private List<Integer> phenotype;
     private Double objectiveFunctionValue;
-    private Double suitability;
+    private Double fitness;
     private int dimension;
     private Map<OperatorType, OperatorSettings> operatorsSettings = new HashMap<>();
     /**
@@ -50,11 +50,12 @@ public class Individual implements Serializable {
         return individual;
     }
 
-    public void calcSuitability() {
+    public void calcFitness() {
         logger.debug("Подсчёт значения функции пригодности индивида. Начало");
-        suitability = Problem.getInstance().calcFitnessFunction(this);
-        logger.debug("Полученное значение: " + suitability);
+        objectiveFunctionValue = Problem.getInstance().calcObjectiveFunction(this);
         logger.debug("Значение оптимизируемой функции: " + objectiveFunctionValue);
+        fitness = 10000 / (1 + objectiveFunctionValue);
+        logger.debug("Полученное значение: " + fitness);
         logger.debug("Подсчёт значения функции пригодности индивида. Окончание");
     }
 
@@ -92,12 +93,12 @@ public class Individual implements Serializable {
         this.phenotype = phenotype;
     }
 
-    public Double getSuitability() {
-        return suitability;
+    public Double getFitness() {
+        return fitness;
     }
 
-    public void setSuitability(Double suitability) {
-        this.suitability = suitability;
+    public void setFitness(Double fitness) {
+        this.fitness = fitness;
     }
 
     public int getDimension() {

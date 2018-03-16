@@ -28,15 +28,15 @@ public class Population {
         for (int i = 0; i < individualsAmount; i++) {
             individuals.add(Individual.createIndividual(individualDimension));
         }
-        calcSuitability();
+        calcFitness();
         findBest();
         logger.info("Ининициализация популяции. Окончание");
     }
 
-    public void calcSuitability() {
+    public void calcFitness() {
         logger.info("Подсчёт значения функции пригодности в популяции. Начало");
         for (Individual individual : individuals) {
-            individual.calcSuitability();
+            individual.calcFitness();
         }
         logger.info("Подсчёт значения функции пригодности в популяции. Окончание");
     }
@@ -44,10 +44,10 @@ public class Population {
     public Individual getBest(List<Individual> individuals) {
         int i = 0;
         int index = 0;
-        Double bestSuitability = 0d;
+        Double bestFitness = 0d;
         for (Individual individual : individuals) {
-            if (individual.getSuitability() > bestSuitability) {
-                bestSuitability = individual.getSuitability();
+            if (individual.getFitness() > bestFitness) {
+                bestFitness = individual.getFitness();
                 index = i;
             }
             i++;
@@ -63,13 +63,13 @@ public class Population {
             bestIndividual = Individual.clone(best);
         } else {
             // для всех остальных сравниваем пригодность
-            if (bestIndividual.getSuitability() < best.getSuitability()) {
+            if (bestIndividual.getFitness() < best.getFitness()) {
                 logger.debug("Заменяем предыдущего лучшего индивида: " + bestIndividual.toString());
-                logger.debug("Пригодность данного индивида: " + bestIndividual.getSuitability());
+                logger.debug("Пригодность данного индивида: " + bestIndividual.getFitness());
                 logger.debug("Значение оптимизируемой функции для данного индивида: " + bestIndividual.getObjectiveFunctionValue());
                 bestIndividual = Individual.clone(best);
             } else {
-                logger.debug("Пригодность лучшего индивида в популяции: " + best.getSuitability());
+                logger.debug("Пригодность лучшего индивида в популяции: " + best.getFitness());
                 logger.debug("Значение оптимизируемой функции для данного индивида: " + best.getObjectiveFunctionValue());
                 logger.debug("Сам индивид: " + best.toString());
                 logger.debug("Он хуже предыдущего, замену не производим");
@@ -77,7 +77,7 @@ public class Population {
         }
 
         logger.info("Лучший индивид: " + bestIndividual.toString());
-        logger.info("Пригодность данного индивида: " + bestIndividual.getSuitability());
+        logger.info("Пригодность данного индивида: " + bestIndividual.getFitness());
         logger.info("Значение оптимизируемой функции для данного индивида: " + bestIndividual.getObjectiveFunctionValue());
         logger.info("Выбор лучшего индивида в популяции. Окончание");
     }

@@ -33,17 +33,17 @@ public class Selection extends Operator {
 
     private void proportionalSelection(List<Individual> individuals, List<Individual> parents, int parentsAmount) {
         // считаем суммарную пригодность
-        double summarySuitability = 0;
+        double summaryFitness = 0;
         for (Individual individual : individuals) {
-            summarySuitability += individual.getSuitability();
+            summaryFitness += individual.getFitness();
         }
         // набираем родителей
         for (int i = 0; i < parentsAmount; i++) {
-            double rollDice = summarySuitability * RandomUtils.random.nextDouble();
+            double rollDice = summaryFitness * RandomUtils.random.nextDouble();
             double localSummary = 0;
             for (Individual individual : individuals) {
                 // если суммарная пригодность меньше выброшенного числа - индивид становится родителем
-                localSummary += individual.getSuitability();
+                localSummary += individual.getFitness();
                 if (localSummary >= rollDice) {
                     individual.getOperatorsSettings().put(OperatorType.SELECTION, settings);
                     parents.add(individual);
@@ -68,7 +68,7 @@ public class Selection extends Operator {
 
         @Override
         public int compare(IndividualWrapper o1, IndividualWrapper o2) {
-            double difference = o1.individual.getSuitability() - o2.individual.getSuitability();
+            double difference = o1.individual.getFitness() - o2.individual.getFitness();
             if (difference == 0) {
                 return 0;
             } else if (difference > 0) {
@@ -84,11 +84,11 @@ public class Selection extends Operator {
         // проставляем ранги
         int i = 0;
         while (i < individualsSorted.size()) {
-            double suitability = individualsSorted.get(i).individual.getSuitability();
+            double fitness = individualsSorted.get(i).individual.getFitness();
             int j = i + 1;
             int count = 1;
             // считаем количество индивидов с такой же пригодностью
-            while (j < individualsSorted.size() && suitability == individualsSorted.get(j).individual.getSuitability()) {
+            while (j < individualsSorted.size() && fitness == individualsSorted.get(j).individual.getFitness()) {
                 count += 1;
                 j += 1;
             }
@@ -112,14 +112,14 @@ public class Selection extends Operator {
         // проставляем ранги
         int size = individualsSorted.size();
         int i = size - 1;
-        double suitability = -1;
+        double fitness = -1;
         double rank = -1;
         while (i > 0) {
-            if (suitability == individualsSorted.get(i).individual.getSuitability()) {
+            if (fitness == individualsSorted.get(i).individual.getFitness()) {
                 individualsSorted.get(i).rank = rank;
             } else {
                 rank = initialWeight * Math.pow(settings.getWeight(), size - i - 1);
-                suitability = individualsSorted.get(i).individual.getSuitability();
+                fitness = individualsSorted.get(i).individual.getFitness();
                 individualsSorted.get(i).rank = rank;
             }
             i -= 1;
@@ -173,22 +173,22 @@ public class Selection extends Operator {
     private void tournamentSelection(List<Individual> individuals, List<Individual> parents, int parentsAmount) {
         for (int i = 0; i < parentsAmount; i++) {
             int maxIndex = 0;
-            Double maxSuitability = 0d;
+            Double maxFitness = 0d;
             List<Integer> indexes = new ArrayList<>();
             for (int j = 0; j < settings.getTournamentSize(); j++) {
                 int index = RandomUtils.getRandomIndexExclude(indexes, individuals.size());
                 indexes.add(index);
                 // выбираем лучшего
-                Double suitability = individuals.get(index).getSuitability();
-                if (suitability > maxSuitability) {
+                Double fitness = individuals.get(index).getFitness();
+                if (fitness > maxFitness) {
                     maxIndex = index;
-                    maxSuitability = suitability;
+                    maxFitness = fitness;
                 }
             }
             Individual chosen = individuals.get(maxIndex);
             chosen.getOperatorsSettings().put(OperatorType.SELECTION, settings);
             logger.debug("Отобранный индивид: " + chosen.toString());
-            logger.debug("Его пригодность: " + chosen.getSuitability());
+            logger.debug("Его пригодность: " + chosen.getFitness());
             parents.add(chosen);
         }
     }

@@ -78,16 +78,6 @@ public class Problem {
         return result;
     }
 
-    public Double calcFitnessFunction(Individual individual) {
-        logger.debug("Подсчёт функции пригодности для индивида. Начало");
-        logger.debug("Индивид: " + individual.toString());
-        individual.setObjectiveFunctionValue(calcObjectiveFunction (individual));
-        Double result = 10000 / (1 + individual.getObjectiveFunctionValue());
-        logger.debug("Полученное значение: " + result);
-        logger.debug("Подсчёт функции пригодности для индивида. Окончание");
-        return result;
-    }
-
     /**
      * подсчёт расстояния между двумя городами
      * @param index0 - индекс одного города

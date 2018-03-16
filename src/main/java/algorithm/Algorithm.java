@@ -41,7 +41,7 @@ public class Algorithm {
             for (OperatorType operatorType : OperatorType.values()) {
                 population.applyOperator(operatorType, operators);
             }
-            population.calcSuitability();
+            population.calcFitness();
             population.findBest();
             population.calcOperatorsFitness(operators);
             population.configureOperators(operators, settings.getGenerationsAmount());
