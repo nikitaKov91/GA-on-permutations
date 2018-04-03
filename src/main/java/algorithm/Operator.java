@@ -3,9 +3,15 @@ package algorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import settings.OperatorSettings;
+import util.OperatorFactory;
 import util.OperatorType;
 import util.RandomUtils;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -174,6 +180,32 @@ public abstract class Operator {
                 }
             }
         }
+    }
+
+    public static void initOperatorSettings(Map<OperatorType, Map<OperatorSettings, Operator>> operators, String operatorsFolder) throws IOException {
+        logger.info("Инициализация настроек операторов. Начало");
+
+        for (OperatorType operatorType : OperatorType.values()) {
+            operators.put(operatorType, new HashMap<>());
+        }
+
+        int operatorsCount = 0;
+        File operatorFile = new File(operatorsFolder + "\\operator" + operatorsCount + ".txt");
+        while (operatorFile.exists()) {
+            List<String> content = Files.readAllLines(Paths.get(operatorFile.getAbsolutePath()));
+            Operator operator = OperatorFactory.createOperator(content);
+            OperatorSettings operatorSettings = operator.getSettings();
+            operators.get(operatorSettings.getOperatorType()).put(operatorSettings, operator);
+            operatorsCount++;
+            operatorFile = new File(operatorsFolder + "\\operator" + operatorsCount + ".txt");
+        }
+
+        for (Map.Entry<OperatorType, Map<OperatorSettings, Operator>> entry : operators.entrySet()) {
+            Operator.setOperatorsInitialProbabilities(entry.getValue());
+            Operator.setOperatorsDistribution(entry.getValue());
+        }
+
+        logger.info("Инициализация настроек операторов. Окончание");
     }
 
 }

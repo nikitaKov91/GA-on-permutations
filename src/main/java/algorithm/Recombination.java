@@ -31,23 +31,22 @@ public class Recombination extends Operator {
     }
 
     private void typicalRecombination(List<Individual> individuals, List<Individual> parents, int index) {
-        int size = parents.get(0).getDimension();
         Individual child;
-        // выбираем родителей попарно
-        Boolean whoIsFirst = RandomUtils.random.nextBoolean();
-        if (whoIsFirst) {
-            child = generateChild(parents.get(index), parents.get(index + 1), size);
+        // случайным образом выбираем порядок родителей
+        if (RandomUtils.random.nextBoolean()) {
+            child = generateChild(parents.get(index), parents.get(index + 1));
         } else {
-            child = generateChild(parents.get(index + 1), parents.get(index), size);
+            child = generateChild(parents.get(index + 1), parents.get(index));
         }
         individuals.add(child);
     }
 
-    private Individual generateChild(Individual parent0, Individual parent1, int size) {
+    private Individual generateChild(Individual parent0, Individual parent1) {
         logger.debug("Первый родитель: " + parent0.toString());
         logger.debug("Второй родитель: " + parent1.toString());
         Individual child = new Individual();
         List<Integer> phenotype = new ArrayList<>();
+        int size = parent0.getDimension();
         int index0 = RandomUtils.getRandomIndexExclude(null, size);
         int index1 = RandomUtils.getRandomIndexExclude(index0, size);
         if (index0 < index1) {
@@ -55,7 +54,7 @@ public class Recombination extends Operator {
             for (int i = index0; i <= index1; i++) {
                 phenotype.add(parent0.getElementByIndex(i));
             }
-            fillChildBySecondParent(parent1, phenotype, index1, size);
+            fillChildBySecondParent(parent1, phenotype, index1 + 1, size);
         } else {
             // копируем всё, исключая то, что в промежутке между index1 и index0
             for (int i = index0; i < size; i++) {
@@ -64,7 +63,7 @@ public class Recombination extends Operator {
             for (int i = 0; i <= index1; i++) {
                 phenotype.add(parent0.getElementByIndex(i));
             }
-            fillChildBySecondParent(parent1, phenotype, index0, size);
+            fillChildBySecondParent(parent1, phenotype, index1 + 1, size);
         }
         child.setDimension(size);
         child.setPhenotype(phenotype);
@@ -83,7 +82,7 @@ public class Recombination extends Operator {
                 phenotype.add(code);
             }
         }
-        for (int i = 0; i <= index; i++) {
+        for (int i = 0; i < index; i++) {
             Integer code = parent.getElementByIndex(i);
             if (phenotype.indexOf(code) == -1) {
                 phenotype.add(code);

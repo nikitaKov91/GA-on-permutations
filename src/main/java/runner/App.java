@@ -1,13 +1,18 @@
 package runner;
 
 import algorithm.Algorithm;
+import algorithm.Operator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import settings.OperatorSettings;
+import util.OperatorType;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Коваленко Никита on 27.08.2017.
@@ -18,24 +23,64 @@ public class App {
 
     // при необходимости передавать в параметрах
     public static final String PATH = "C:\\Work\\projects\\GA-on-permutations\\";
+    public static final String AUTO = "0";
 
     public static void main(String[] args) {
         try {
-            for (int i = 0; i < 3; i++) {
-                for (int j = 0; j < 3; j++) {
+            if ("1".equals(AUTO)) {
+                for (int i = 0; i < 3; i++) {
                     List<String> result = new ArrayList<>();
                     for (int k = 0; k <= 99; k++) {
                         Algorithm algorithm = new Algorithm();
-                        algorithm.init(PATH + "problem" + i + ".txt",
-                                PATH + "settings" + j + ".txt",
-                                PATH);
+                        algorithm.init(PATH + "problems\\problem" + i + ".txt",
+                                PATH + "settings\\settings" + i + ".txt");
+                        algorithm.initOperatorSettings(PATH + "operators");
                         algorithm.process();
                         result.add(String.valueOf(algorithm.getPopulation().getBestIndividual().getObjectiveFunctionValue()));
                     }
-                    Files.write(Paths.get(PATH + "result-problem" + i + "-settings" + j + ".txt"), result);
+                    Files.write(Paths.get(PATH + "results\\result-problem" + i + ".txt"), result);
+                }
+            } else {
+                Map<OperatorType, Map<OperatorSettings, Operator>> allOperators = new HashMap<>();
+                Operator.initOperatorSettings(allOperators, PATH + "operators");
+                for (int i = 0; i < 3; i++) {
+                    List<String> result = new ArrayList<>();
+                    for (Map.Entry<OperatorSettings, Operator> selection : allOperators.get(OperatorType.SELECTION).entrySet()) {
+                        for (Map.Entry<OperatorSettings, Operator> recombination : allOperators.get(OperatorType.RECOMBINATION).entrySet()) {
+                            for (Map.Entry<OperatorSettings, Operator> mutation : allOperators.get(OperatorType.MUTATION).entrySet()) {
+                                result.add(selection.getValue().toString());
+                                result.add(recombination.getValue().toString());
+                                result.add(mutation.getValue().toString());
+                                StringBuilder sb = new StringBuilder();
+                                for (int k = 0; k <= 99; k++) {
+                                    Algorithm algorithm = new Algorithm();
+                                    algorithm.init(PATH + "problems\\problem" + i + ".txt",
+                                            PATH + "settings\\settings" + i + ".txt");
+                                    Map<OperatorType, Map<OperatorSettings, Operator>> operators = new HashMap<>();
+                                    // селекция
+                                    Map<OperatorSettings, Operator> selections = new HashMap<>();
+                                    selections.put(selection.getKey(), selection.getValue());
+                                    operators.put(OperatorType.SELECTION, selections);
+                                    // рекомбинация
+                                    Map<OperatorSettings, Operator> recombinations = new HashMap<>();
+                                    recombinations.put(recombination.getKey(), recombination.getValue());
+                                    operators.put(OperatorType.RECOMBINATION, recombinations);
+                                    // мутация
+                                    Map<OperatorSettings, Operator> mutations = new HashMap<>();
+                                    mutations.put(mutation.getKey(), mutation.getValue());
+                                    operators.put(OperatorType.MUTATION, mutations);
+                                    algorithm.setOperators(operators);
+                                    algorithm.process();
+                                    sb.append(String.valueOf(algorithm.getPopulation().getBestIndividual().getObjectiveFunctionValue()));
+                                    sb.append("\t");
+                                }
+                                result.add(sb.toString());
+                            }
+                        }
+                    }
+                    Files.write(Paths.get(PATH + "results\\result-problem" + i + ".txt"), result);
                 }
             }
-
         } catch (Exception e) {
             logger.error(e.getMessage());
             e.printStackTrace();

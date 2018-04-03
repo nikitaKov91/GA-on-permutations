@@ -28,10 +28,9 @@ public class Algorithm {
 
     private int countOfGenerations = 0;
 
-    public void init(String problemFilePath, String settingsFilePath, String operatorsFolder) throws IOException {
+    public void init(String problemFilePath, String settingsFilePath) throws IOException {
         problem.init(problemFilePath);
         Settings.init(this, settingsFilePath);
-        initOperatorSettings(operatorsFolder);
     }
 
     public void process() {
@@ -72,30 +71,8 @@ public class Algorithm {
         return ret;
     }
 
-    private void initOperatorSettings(String operatorsFolder) throws IOException {
-        logger.info("Алгоритм. Инициализация настроек операторов. Начало");
-
-        for (OperatorType operatorType : OperatorType.values()) {
-            operators.put(operatorType, new HashMap<>());
-        }
-
-        int operatorsCount = 0;
-        File operatorFile = new File(operatorsFolder + "\\operator" + operatorsCount + ".txt");
-        while (operatorFile.exists()) {
-            List<String> content = Files.readAllLines(Paths.get(operatorFile.getAbsolutePath()));
-            Operator operator = OperatorFactory.createOperator(content);
-            OperatorSettings operatorSettings = operator.getSettings();
-            operators.get(operatorSettings.getOperatorType()).put(operatorSettings, operator);
-            operatorsCount++;
-            operatorFile = new File(operatorsFolder + "\\operator" + operatorsCount + ".txt");
-        }
-
-        for (Map.Entry<OperatorType, Map<OperatorSettings, Operator>> entry : operators.entrySet()) {
-            Operator.setOperatorsInitialProbabilities(entry.getValue());
-            Operator.setOperatorsDistribution(entry.getValue());
-        }
-
-        logger.info("Алгоритм. Инициализация настроек операторов. Окончание");
+    public void initOperatorSettings(String operatorsFolder) throws IOException {
+        Operator.initOperatorSettings(operators, operatorsFolder);
     }
 
     public Problem getProblem() {
@@ -112,5 +89,13 @@ public class Algorithm {
 
     public void setSettings(Settings settings) {
         this.settings = settings;
+    }
+
+    public Map<OperatorType, Map<OperatorSettings, Operator>> getOperators() {
+        return operators;
+    }
+
+    public void setOperators(Map<OperatorType, Map<OperatorSettings, Operator>> operators) {
+        this.operators = operators;
     }
 }
