@@ -22,8 +22,7 @@ public class App {
     static Logger logger = LoggerFactory.getLogger(App.class);
 
     // при необходимости передавать в параметрах
-    public static final String PATH = "C:\\Work\\projects\\GA-on-permutations\\";
-    public static final String AUTO = "0";
+    public static final String AUTO = "1";
 
     public static void main(String[] args) {
         try {
@@ -32,17 +31,17 @@ public class App {
                     List<String> result = new ArrayList<>();
                     for (int k = 0; k <= 99; k++) {
                         Algorithm algorithm = new Algorithm();
-                        algorithm.init(PATH + "problems\\problem" + i + ".txt",
-                                PATH + "settings\\settings" + i + ".txt");
-                        algorithm.initOperatorSettings(PATH + "operators");
+                        algorithm.init("problems\\problem" + i + ".txt",
+                                "settings\\settings" + i + ".txt");
+                        algorithm.initOperatorSettings("operators");
                         algorithm.process();
                         result.add(String.valueOf(algorithm.getPopulation().getBestIndividual().getObjectiveFunctionValue()));
                     }
-                    Files.write(Paths.get(PATH + "results\\result-problem" + i + ".txt"), result);
+                    Files.write(Paths.get("results\\result-problem" + i + ".txt"), result);
                 }
             } else {
                 Map<OperatorType, Map<OperatorSettings, Operator>> allOperators = new HashMap<>();
-                Operator.initOperatorSettings(allOperators, PATH + "operators");
+                Operator.initOperatorSettings(allOperators, "operators");
                 for (int i = 0; i < 3; i++) {
                     List<String> result = new ArrayList<>();
                     for (Map.Entry<OperatorSettings, Operator> selection : allOperators.get(OperatorType.SELECTION).entrySet()) {
@@ -54,8 +53,8 @@ public class App {
                                 StringBuilder sb = new StringBuilder();
                                 for (int k = 0; k <= 99; k++) {
                                     Algorithm algorithm = new Algorithm();
-                                    algorithm.init(PATH + "problems\\problem" + i + ".txt",
-                                            PATH + "settings\\settings" + i + ".txt");
+                                    algorithm.init("problems\\problem" + i + ".txt",
+                                            "settings\\settings" + i + ".txt");
                                     Map<OperatorType, Map<OperatorSettings, Operator>> operators = new HashMap<>();
                                     // селекция
                                     Map<OperatorSettings, Operator> selections = new HashMap<>();
@@ -78,7 +77,7 @@ public class App {
                             }
                         }
                     }
-                    Files.write(Paths.get(PATH + "results\\result-problem" + i + ".txt"), result);
+                    Files.write(Paths.get("results\\result-problem" + i + ".txt"), result);
                 }
             }
         } catch (Exception e) {

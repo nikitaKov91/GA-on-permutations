@@ -11,18 +11,24 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static util.OperatorType.*;
 
 /**
  * Created by Коваленко Никита on 10.01.2018.
  */
 public abstract class Operator {
 
-    public static final double MIN_OPERATOR_PROBABILITY = 0.05d;
+    public static final double MIN_OPERATOR_PROBABILITY = 0.02d;
 
     private static Logger logger = LoggerFactory.getLogger(Operator.class);
+
+    public static int problemNumber = 0;
 
     private Double probability;
     private Double distribution;
@@ -102,7 +108,7 @@ public abstract class Operator {
 
         // вероятности всех остальных операторов уменьшаются на K /(z * N)),
         // где N – число поколений, K – константа, обычно равная 2
-        double reduceProbability = 2 / (operators.size() * generationsAmount);
+        double reduceProbability = 2d / (operators.size() * generationsAmount);
         double increaseProbability = 0;
         for (Map.Entry<OperatorSettings, Operator> entry : operators.entrySet()) {
             Operator operator = entry.getValue();
@@ -206,6 +212,90 @@ public abstract class Operator {
         }
 
         logger.info("Инициализация настроек операторов. Окончание");
+    }
+
+    public static void writeHeadProbabilitiesInFiles(Map<OperatorType, Map<OperatorSettings, Operator>> operators) throws IOException {
+        StringBuilder sbRecombinations = new StringBuilder();
+        StringBuilder sbSelections = new StringBuilder();
+        StringBuilder sbMutations = new StringBuilder();
+
+        for (Map.Entry<OperatorType, Map<OperatorSettings, Operator>> entry : operators.entrySet()) {
+            for (Map.Entry<OperatorSettings, Operator> operator : entry.getValue().entrySet()) {
+                if (operator.getKey().getOperatorType() == RECOMBINATION) {
+                    if (sbRecombinations.length() > 0) {
+                        sbRecombinations.append("\t");
+                    }
+                    sbRecombinations.append(operator.getKey().toString());
+                } else if (operator.getKey().getOperatorType() == SELECTION) {
+                    if (sbSelections.length() > 0) {
+                        sbSelections.append("\t");
+                    }
+                    sbSelections.append(operator.getKey().toString());
+                } else if (operator.getKey().getOperatorType() == MUTATION) {
+                    if (sbMutations.length() > 0) {
+                        sbMutations.append("\t");
+                    }
+                    sbMutations.append(operator.getKey().toString());
+                }
+            }
+        }
+
+        List<String> recombinations = new ArrayList<>();
+        List<String> selections = new ArrayList<>();
+        List<String> mutations = new ArrayList<>();
+        recombinations.add(sbRecombinations.toString());
+        selections.add(sbSelections.toString());
+        mutations.add(sbMutations.toString());
+
+        Files.write(Paths.get("probabilities\\problem" + problemNumber + "-recombinations.txt"), recombinations);
+        Files.write(Paths.get("probabilities\\problem" + problemNumber + "-selections.txt"), selections);
+        Files.write(Paths.get("probabilities\\problem" + problemNumber + "-mutations.txt"), mutations);
+    }
+
+    public static void writeProbabilitiesInFiles(Map<OperatorType, Map<OperatorSettings, Operator>> operators,
+                                                 int countOfGenerations) throws IOException {
+        StringBuilder sbRecombinations = new StringBuilder();
+        StringBuilder sbSelections = new StringBuilder();
+        StringBuilder sbMutations = new StringBuilder();
+
+        sbRecombinations.append(countOfGenerations + "\t");
+        sbSelections.append(countOfGenerations + "\t");
+        sbMutations.append(countOfGenerations + "\t");
+        for (Map.Entry<OperatorType, Map<OperatorSettings, Operator>> entry : operators.entrySet()) {
+            for (Map.Entry<OperatorSettings, Operator> operator : entry.getValue().entrySet()) {
+                if (operator.getKey().getOperatorType() == RECOMBINATION) {
+                    if (sbRecombinations.length() > 0) {
+                        sbRecombinations.append("\t");
+                    }
+                    sbRecombinations.append(operator.getValue().probability);
+                } else if (operator.getKey().getOperatorType() == SELECTION) {
+                    if (sbSelections.length() > 0) {
+                        sbSelections.append("\t");
+                    }
+                    sbSelections.append(operator.getValue().probability);
+                } else if (operator.getKey().getOperatorType() == MUTATION) {
+                    if (sbMutations.length() > 0) {
+                        sbMutations.append("\t");
+                    }
+                    sbMutations.append(operator.getValue().probability);
+                }
+            }
+        }
+
+        List<String> recombinations = new ArrayList<>();
+        List<String> selections = new ArrayList<>();
+        List<String> mutations = new ArrayList<>();
+        recombinations.add(sbRecombinations.toString());
+        selections.add(sbSelections.toString());
+        mutations.add(sbMutations.toString());
+
+
+        Files.write(Paths.get("probabilities\\problem" + problemNumber + "-recombinations.txt"),
+                recombinations, StandardOpenOption.APPEND);
+        Files.write(Paths.get("probabilities\\problem" + problemNumber + "-selections.txt"), selections,
+                StandardOpenOption.APPEND);
+        Files.write(Paths.get("probabilities\\problem" + problemNumber + "-mutations.txt"), mutations,
+                StandardOpenOption.APPEND);
     }
 
 }

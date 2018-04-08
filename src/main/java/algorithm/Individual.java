@@ -54,7 +54,7 @@ public class Individual implements Serializable {
         logger.debug("Подсчёт значения функции пригодности индивида. Начало");
         objectiveFunctionValue = Problem.getInstance().calcObjectiveFunction(this);
         logger.debug("Значение оптимизируемой функции: " + objectiveFunctionValue);
-        fitness = 10000 / (1 + objectiveFunctionValue);
+        fitness = 10000d / (1 + objectiveFunctionValue);
         logger.debug("Полученное значение: " + fitness);
         logger.debug("Подсчёт значения функции пригодности индивида. Окончание");
     }

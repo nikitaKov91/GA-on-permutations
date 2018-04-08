@@ -20,6 +20,7 @@ import java.util.Map;
 public class Algorithm {
 
     private static Logger logger = LoggerFactory.getLogger(Algorithm.class);
+    private static int AMOUNT_OF_ITERATIONS_FOR_PROBABILITIES_OUTPUT = 10;
 
     private Settings settings = new Settings();
     private Problem problem = Problem.getInstance();
@@ -33,10 +34,12 @@ public class Algorithm {
         Settings.init(this, settingsFilePath);
     }
 
-    public void process() {
+    public void process() throws IOException {
         logger.info("Алгоритм. Начало");
         population.init(problem.getDimension());
+        Operator.writeHeadProbabilitiesInFiles(operators);
         do {
+            countOfGenerations += 1;
             for (OperatorType operatorType : OperatorType.values()) {
                 population.applyOperator(operatorType, operators);
             }
@@ -44,8 +47,11 @@ public class Algorithm {
             population.findBest();
             population.calcOperatorsFitness(operators);
             population.configureOperators(operators, settings.getGenerationsAmount());
-            countOfGenerations += 1;
+            if (countOfGenerations % AMOUNT_OF_ITERATIONS_FOR_PROBABILITIES_OUTPUT == 0) {
+                Operator.writeProbabilitiesInFiles(operators, countOfGenerations);
+            }
         } while (stopCriterion());
+        Operator.problemNumber += 1;
         logger.info("Алгоритм. Окончание");
     }
 
