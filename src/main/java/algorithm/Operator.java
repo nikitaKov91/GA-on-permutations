@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import static util.OperatorType.*;
+import static util.RandomUtils.getRandomIndexExclude;
 
 /**
  * Created by Коваленко Никита on 10.01.2018.
@@ -27,8 +28,6 @@ public abstract class Operator {
     public static final double MIN_OPERATOR_PROBABILITY = 0.02d;
 
     private static Logger logger = LoggerFactory.getLogger(Operator.class);
-
-    public static int problemNumber = 0;
 
     private Double probability;
     private Double distribution;
@@ -96,14 +95,25 @@ public abstract class Operator {
     public static void setOperatorsProbabilities(Map<OperatorSettings, Operator> operators, int generationsAmount) {
         logger.debug("Задание вероятностей операторов. Начало");
         double maxFitness = 0;
-        Operator bestOperator = null;
+        List<Operator> bestOperators = new ArrayList<>();
         for (Map.Entry<OperatorSettings, Operator> entry : operators.entrySet()) {
             Operator operator = entry.getValue();
             if (operator.fitness > maxFitness) {
                 maxFitness = operator.fitness;
-                bestOperator = operator;
+                bestOperators.clear();
+                bestOperators.add(operator);
+            } else if (operator.fitness == maxFitness) {
+                bestOperators.add(operator);
             }
         }
+        Operator bestOperator;
+        if (bestOperators.size() == 1) {
+            bestOperator = bestOperators.get(0);
+        } else {
+            int index = getRandomIndexExclude(null, bestOperators.size());
+            bestOperator = bestOperators.get(index);
+        }
+
         logger.debug("Лучший оператор: " + bestOperator);
 
         // вероятности всех остальных операторов уменьшаются на K /(z * N)),
@@ -214,7 +224,7 @@ public abstract class Operator {
         logger.info("Инициализация настроек операторов. Окончание");
     }
 
-    public static void writeHeadProbabilitiesInFiles(Map<OperatorType, Map<OperatorSettings, Operator>> operators) throws IOException {
+    public static void writeHeadProbabilitiesInFiles(Map<OperatorType, Map<OperatorSettings, Operator>> operators, int problemNumber) throws IOException {
         StringBuilder sbRecombinations = new StringBuilder();
         StringBuilder sbSelections = new StringBuilder();
         StringBuilder sbMutations = new StringBuilder();
@@ -253,7 +263,7 @@ public abstract class Operator {
     }
 
     public static void writeProbabilitiesInFiles(Map<OperatorType, Map<OperatorSettings, Operator>> operators,
-                                                 int countOfGenerations) throws IOException {
+                                                 int countOfGenerations, int problemNumber) throws IOException {
         StringBuilder sbRecombinations = new StringBuilder();
         StringBuilder sbSelections = new StringBuilder();
         StringBuilder sbMutations = new StringBuilder();

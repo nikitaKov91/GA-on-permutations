@@ -22,21 +22,21 @@ public class Population {
     private Individual bestIndividual;
     private Integer individualsAmount;
 
-    public void init(Integer individualDimension) {
+    public void init(Problem problem) {
         logger.info("Ининициализация популяции. Начало");
         individuals = new ArrayList<>();
         for (int i = 0; i < individualsAmount; i++) {
-            individuals.add(Individual.createIndividual(individualDimension));
+            individuals.add(Individual.createIndividual(problem.getDimension()));
         }
-        calcFitness();
+        calcFitness(problem);
         findBest();
         logger.info("Ининициализация популяции. Окончание");
     }
 
-    public void calcFitness() {
+    public void calcFitness(Problem problem) {
         logger.info("Подсчёт значения функции пригодности в популяции. Начало");
         for (Individual individual : individuals) {
-            individual.calcFitness();
+            individual.calcFitness(problem);
         }
         logger.info("Подсчёт значения функции пригодности в популяции. Окончание");
     }

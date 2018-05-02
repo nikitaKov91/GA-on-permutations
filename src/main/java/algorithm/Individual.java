@@ -50,9 +50,9 @@ public class Individual implements Serializable {
         return individual;
     }
 
-    public void calcFitness() {
+    public void calcFitness(Problem problem) {
         logger.debug("Подсчёт значения функции пригодности индивида. Начало");
-        objectiveFunctionValue = Problem.getInstance().calcObjectiveFunction(this);
+        objectiveFunctionValue = problem.calcObjectiveFunction(this);
         logger.debug("Значение оптимизируемой функции: " + objectiveFunctionValue);
         fitness = 10000d / (1 + objectiveFunctionValue);
         logger.debug("Полученное значение: " + fitness);

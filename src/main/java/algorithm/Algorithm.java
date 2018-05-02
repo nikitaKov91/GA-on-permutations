@@ -23,7 +23,7 @@ public class Algorithm {
     private static int AMOUNT_OF_ITERATIONS_FOR_PROBABILITIES_OUTPUT = 10;
 
     private Settings settings = new Settings();
-    private Problem problem = Problem.getInstance();
+    private Problem problem = new Problem();
     private Population population = new Population();
     private Map<OperatorType, Map<OperatorSettings, Operator>> operators = new HashMap<>();
 
@@ -34,24 +34,23 @@ public class Algorithm {
         Settings.init(this, settingsFilePath);
     }
 
-    public void process() throws IOException {
+    public void process(int problemNumber) throws IOException {
         logger.info("Алгоритм. Начало");
-        population.init(problem.getDimension());
-        Operator.writeHeadProbabilitiesInFiles(operators);
+        population.init(problem);
+        Operator.writeHeadProbabilitiesInFiles(operators, problemNumber);
         do {
             countOfGenerations += 1;
             for (OperatorType operatorType : OperatorType.values()) {
                 population.applyOperator(operatorType, operators);
             }
-            population.calcFitness();
+            population.calcFitness(problem);
             population.findBest();
             population.calcOperatorsFitness(operators);
             population.configureOperators(operators, settings.getGenerationsAmount());
             if (countOfGenerations % AMOUNT_OF_ITERATIONS_FOR_PROBABILITIES_OUTPUT == 0) {
-                Operator.writeProbabilitiesInFiles(operators, countOfGenerations);
+                Operator.writeProbabilitiesInFiles(operators, countOfGenerations, problemNumber);
             }
         } while (stopCriterion());
-        Operator.problemNumber += 1;
         logger.info("Алгоритм. Окончание");
     }
 

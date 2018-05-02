@@ -84,7 +84,7 @@ public class MutationSettings implements OperatorSettings, Serializable {
                 sb.append("мутация вставкой");
                 break;
             case BY_SHIFTING:
-                sb.append("мутация переводом");
+                sb.append("мутация сдвигом");
                 break;
         }
 

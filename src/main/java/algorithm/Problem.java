@@ -16,16 +16,6 @@ public class Problem {
 
     private static Logger logger = LoggerFactory.getLogger(Problem.class);
 
-    private static Problem instance;
-    private Problem(){}
-
-    public static Problem getInstance(){
-        if(instance == null){
-            instance = new Problem();
-        }
-        return instance;
-    }
-
     private List<List<Integer>> coordinates;
     private Integer dimension;
     private Integer coordinatesDimension;
@@ -34,14 +24,14 @@ public class Problem {
     public void init(String filePath) throws IOException {
         logger.info("Инициализация задачи. Начало");
         logger.info("Файл: " + filePath);
-        instance.coordinates = new ArrayList<>();
+        coordinates = new ArrayList<>();
         List<String> content = Files.readAllLines(Paths.get(filePath));
         boolean isFirstLine = true;
         for (String line : content) {
             if (isFirstLine) {
                 if (line != null && !"".equals(line)) {
-                    instance.solution = Double.parseDouble(line);
-                    logger.info("Решение: " + instance.solution);
+                    solution = Double.parseDouble(line);
+                    logger.info("Решение: " + solution);
                 }
                 isFirstLine = false;
             } else {
@@ -49,15 +39,15 @@ public class Problem {
                 for (String coord : line.split(" ")) {
                     temp.add(Integer.parseInt(coord));
                 }
-                instance.coordinates.add(temp);
-                if (instance.coordinatesDimension == null) {
-                    instance.coordinatesDimension = temp.size();
-                    logger.info("Размерность вектора координат: " + instance.coordinatesDimension);
+                coordinates.add(temp);
+                if (coordinatesDimension == null) {
+                    coordinatesDimension = temp.size();
+                    logger.info("Размерность вектора координат: " + coordinatesDimension);
                 }
             }
         }
-        instance.dimension = instance.coordinates.size();
-        logger.info("Размерность задачи: " + instance.dimension);
+        dimension = coordinates.size();
+        logger.info("Размерность задачи: " + dimension);
         logger.info("Инициализации задачи. Окончание");
     }
 
