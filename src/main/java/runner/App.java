@@ -21,6 +21,7 @@ import java.util.Map;
 public class App {
 
     static Logger logger = LoggerFactory.getLogger(App.class);
+    static boolean isWriteProbabilitiesInFiles;
 
     public static void runProblem(Map<OperatorType, Map<OperatorSettings, Operator>> allOperators, int problemNumber) throws IOException {
         List<String> result = new ArrayList<>();
@@ -49,7 +50,7 @@ public class App {
                         mutations.put(mutation.getKey(), mutation.getValue());
                         operators.put(OperatorType.MUTATION, mutations);
                         algorithm.setOperators(operators);
-                        algorithm.process(problemNumber);
+                        algorithm.process(problemNumber, k == 0 ? isWriteProbabilitiesInFiles : false);
                         sb.append(String.valueOf(algorithm.getPopulation().getBestIndividual().getObjectiveFunctionValue()));
                         sb.append("\t");
                     }
@@ -67,7 +68,7 @@ public class App {
             algorithm.init("problems\\problem" + problemNumber + ".txt",
                     "settings\\settings" + problemNumber + ".txt");
             algorithm.initOperatorSettings("operators");
-            algorithm.process(problemNumber);
+            algorithm.process(problemNumber, k == 0 ? isWriteProbabilitiesInFiles : false);
             result.add(String.valueOf(algorithm.getPopulation().getBestIndividual().getObjectiveFunctionValue()));
         }
         Files.write(Paths.get("results\\result-problem" + problemNumber + ".txt"), result);
@@ -75,9 +76,14 @@ public class App {
 
     public static void main(String[] args) {
         boolean isSelfConfiguration = true;
-        if (args.length > 1) {
+        if (args.length > 0) {
             if (!"1".equals(args[0])) {
                 isSelfConfiguration = false;
+            }
+        }
+        if (args.length > 1) {
+            if ("1".equals(args[1])) {
+                isWriteProbabilitiesInFiles = true;
             }
         }
         try {

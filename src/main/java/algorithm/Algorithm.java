@@ -34,10 +34,12 @@ public class Algorithm {
         Settings.init(this, settingsFilePath);
     }
 
-    public void process(int problemNumber) throws IOException {
+    public void process(int problemNumber, boolean isWriteProbabilitiesInFiles) throws IOException {
         logger.info("Алгоритм. Начало");
         population.init(problem);
-        Operator.writeHeadProbabilitiesInFiles(operators, problemNumber);
+        if (isWriteProbabilitiesInFiles) {
+            Operator.writeHeadProbabilitiesInFiles(operators, problemNumber);
+        }
         do {
             countOfGenerations += 1;
             for (OperatorType operatorType : OperatorType.values()) {
@@ -47,8 +49,10 @@ public class Algorithm {
             population.findBest();
             population.calcOperatorsFitness(operators);
             population.configureOperators(operators, settings.getGenerationsAmount());
-            if (countOfGenerations % AMOUNT_OF_ITERATIONS_FOR_PROBABILITIES_OUTPUT == 0) {
-                Operator.writeProbabilitiesInFiles(operators, countOfGenerations, problemNumber);
+            if (isWriteProbabilitiesInFiles) {
+                if (countOfGenerations % AMOUNT_OF_ITERATIONS_FOR_PROBABILITIES_OUTPUT == 0) {
+                    Operator.writeProbabilitiesInFiles(operators, countOfGenerations, problemNumber);
+                }
             }
         } while (stopCriterion());
         logger.info("Алгоритм. Окончание");
