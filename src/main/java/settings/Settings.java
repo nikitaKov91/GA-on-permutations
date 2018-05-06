@@ -36,15 +36,7 @@ public class Settings {
         return accuracy;
     }
 
-    public void setAccuracy(Double accuracy) {
-        this.accuracy = accuracy;
-    }
-
     public int getGenerationsAmount() {
         return generationsAmount;
-    }
-
-    public void setGenerationsAmount(int generationsAmount) {
-        this.generationsAmount = generationsAmount;
     }
 }

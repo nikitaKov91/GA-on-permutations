@@ -63,16 +63,8 @@ public class RecombinationSettings implements OperatorSettings, Serializable {
         return operatorType;
     }
 
-    public void setOperatorType(OperatorType operatorType) {
-        this.operatorType = operatorType;
-    }
-
     public RecombinationType getRecombinationType() {
         return recombinationType;
-    }
-
-    public void setRecombinationType(RecombinationType recombinationType) {
-        this.recombinationType = recombinationType;
     }
 
 }

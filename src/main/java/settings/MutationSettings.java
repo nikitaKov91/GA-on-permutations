@@ -137,32 +137,12 @@ public class MutationSettings implements OperatorSettings, Serializable {
         return operatorType;
     }
 
-    public void setOperatorType(OperatorType operatorType) {
-        this.operatorType = operatorType;
-    }
-
     public Double getMutationProbability() {
         return mutationProbability;
     }
 
-    public void setMutationProbability(Double mutationProbability) {
-        this.mutationProbability = mutationProbability;
-    }
-
-    public MutationProbabilityType getMutationProbabilityType() {
-        return mutationProbabilityType;
-    }
-
-    public void setMutationProbabilityType(MutationProbabilityType mutationProbabilityType) {
-        this.mutationProbabilityType = mutationProbabilityType;
-    }
-
     public MutationType getMutationType() {
         return mutationType;
-    }
-
-    public void setMutationType(MutationType mutationType) {
-        this.mutationType = mutationType;
     }
 
 }

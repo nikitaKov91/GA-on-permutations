@@ -97,10 +97,6 @@ public class Individual implements Serializable {
         return fitness;
     }
 
-    public void setFitness(Double fitness) {
-        this.fitness = fitness;
-    }
-
     public int getDimension() {
         return dimension;
     }
@@ -113,15 +109,8 @@ public class Individual implements Serializable {
         return objectiveFunctionValue;
     }
 
-    public void setObjectiveFunctionValue(Double objectiveFunctionValue) {
-        this.objectiveFunctionValue = objectiveFunctionValue;
-    }
-
     public Map<OperatorType, OperatorSettings> getOperatorsSettings() {
         return operatorsSettings;
     }
 
-    public void setOperatorsSettings(Map<OperatorType, OperatorSettings> operatorsSettings) {
-        this.operatorsSettings = operatorsSettings;
-    }
 }

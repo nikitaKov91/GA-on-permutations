@@ -1,4 +1,6 @@
 .idea/
 GA-on-permutations.iml
 target/
+results/
+probabilities/
 simple.log

@@ -115,39 +115,20 @@ public class SelectionSettings implements OperatorSettings, Serializable {
         return this;
     }
 
-    public void setOperatorType(OperatorType operatorType) {
-        this.operatorType = operatorType;
-    }
-
     public SelectionType getSelectionType() {
         return selectionType;
-    }
-
-    public void setSelectionType(SelectionType selectionType) {
-        this.selectionType = selectionType;
     }
 
     public Integer getTournamentSize() {
         return tournamentSize;
     }
 
-    public void setTournamentSize(Integer tournamentSize) {
-        this.tournamentSize = tournamentSize;
-    }
-
     public RankingSelectionType getRankingSelectionType() {
         return rankingSelectionType;
-    }
-
-    public void setRankingSelectionType(RankingSelectionType rankingSelectionType) {
-        this.rankingSelectionType = rankingSelectionType;
     }
 
     public Double getWeight() {
         return weight;
     }
 
-    public void setWeight(Double weight) {
-        this.weight = weight;
-    }
 }

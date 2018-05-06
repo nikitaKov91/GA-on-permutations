@@ -86,35 +86,12 @@ public class Problem {
         return result;
     }
 
-    public List<List<Integer>> getCoordinates() {
-        return coordinates;
-    }
-
-    public void setCoordinates(List<List<Integer>> coordinates) {
-        this.coordinates = coordinates;
-    }
-
     public Integer getDimension() {
         return dimension;
-    }
-
-    public void setDimension(Integer dimension) {
-        this.dimension = dimension;
-    }
-
-    public Integer getCoordinatesDimension() {
-        return coordinatesDimension;
-    }
-
-    public void setCoordinatesDimension(Integer coordinatesDimension) {
-        this.coordinatesDimension = coordinatesDimension;
     }
 
     public Double getSolution() {
         return solution;
     }
 
-    public void setSolution(Double solution) {
-        this.solution = solution;
-    }
 }

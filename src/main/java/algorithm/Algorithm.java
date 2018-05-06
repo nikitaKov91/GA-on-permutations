@@ -84,10 +84,6 @@ public class Algorithm {
         Operator.initOperatorSettings(operators, operatorsFolder);
     }
 
-    public Problem getProblem() {
-        return problem;
-    }
-
     public Population getPopulation() {
         return population;
     }
@@ -98,10 +94,6 @@ public class Algorithm {
 
     public void setSettings(Settings settings) {
         this.settings = settings;
-    }
-
-    public Map<OperatorType, Map<OperatorSettings, Operator>> getOperators() {
-        return operators;
     }
 
     public void setOperators(Map<OperatorType, Map<OperatorSettings, Operator>> operators) {
