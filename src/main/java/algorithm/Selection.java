@@ -113,12 +113,12 @@ public class Selection extends Operator {
         int size = individualsSorted.size();
         int i = size - 1;
         double fitness = -1;
-        double rank = -1;
-        while (i > 0) {
+        double rank = initialWeight;
+        while (i >= 0) {
             if (fitness == individualsSorted.get(i).individual.getFitness()) {
                 individualsSorted.get(i).rank = rank;
             } else {
-                rank = initialWeight * Math.pow(settings.getWeight(), size - i - 1);
+                rank *= settings.getWeight();
                 fitness = individualsSorted.get(i).individual.getFitness();
                 individualsSorted.get(i).rank = rank;
             }
@@ -144,7 +144,7 @@ public class Selection extends Operator {
 
     private void rankingSelection(List<Individual> individuals, List<Individual> parents, int parentsAmount) {
         List<IndividualWrapper> individualsSorted = getSortAndRankedIndividuals(individuals);
-        // считаем суммарную пригодность
+        // считаем суммарный ранг
         double summaryRank = 0;
         for (IndividualWrapper individualWrapper : individualsSorted) {
             summaryRank += individualWrapper.rank;

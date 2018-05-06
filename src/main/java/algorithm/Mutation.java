@@ -36,14 +36,19 @@ public class Mutation extends Operator {
 
     public void innerMutation(Individual individual, int size) {
         logger.debug("Запускаем мутацию индивида: " + individual.toString());
-        if (settings.getMutationType() == MutationType.BY_2_EXCHANGE) {
-            mutationBy2Exchange(individual, size);
-        } else if (settings.getMutationType() == MutationType.BY_INSERTION) {
-            mutationByInsertion(individual, size);
-        } else if (settings.getMutationType() == MutationType.BY_INVERSION) {
-            mutationByInversion(individual, size);
-        } else if (settings.getMutationType() == MutationType.BY_SHIFTING) {
-            mutationByShifting(individual, size);
+        switch (settings.getMutationType()) {
+            case BY_2_EXCHANGE:
+                mutationBy2Exchange(individual, size);
+                break;
+            case BY_INSERTION:
+                mutationByInsertion(individual, size);
+                break;
+            case BY_INVERSION:
+                mutationByInversion(individual, size);
+                break;
+            case BY_SHIFTING:
+                mutationByShifting(individual, size);
+                break;
         }
         logger.debug("Полученный индивид: " + individual.toString());
     }
@@ -64,23 +69,45 @@ public class Mutation extends Operator {
         logger.debug("Первый индекс: " + index0);
         logger.debug("Второй индекс: " + index1);
         if (index0 != index1) {
-            int numberOfSwaps = Math.abs(index1 - index0) / 2;
             if (index0 < index1) {
+                int numberOfSwaps = Math.abs(index1 - index0) / 2;
                 for (int i = 0; i <= numberOfSwaps; i++) {
                     Collections.swap(individual.getPhenotype(), index0 + i, index1 - i);
                 }
             } else {
-                for (int i = 1; i < numberOfSwaps; i++) {
-                    Collections.swap(individual.getPhenotype(), index1 + i, index0 - i);
+                List<Integer> newPhenotype = new ArrayList<>();
+                List<Integer> part = new ArrayList<>();
+                // вырезаем нужную часть где-то в середине
+                for (int i = index1 + 1; i < index0; i++) {
+                    part.add(individual.getElementByIndex(i));
                 }
+                // забираем оставшееся
+                newPhenotype.addAll(individual.getPhenotype().subList(0, index1 + 1));
+                newPhenotype.addAll(individual.getPhenotype().subList(index0, size));
+                // меняем местами
+                int numberOfSwaps = (size - (index0 - index1)) / 2;
+                for (int i = 0; i <= numberOfSwaps; i++) {
+                    Collections.swap(newPhenotype, i, newPhenotype.size() - i - 1);
+                }
+                newPhenotype.addAll(part);
+                individual.setPhenotype(newPhenotype);
             }
         }
     }
 
     public void insert(Individual individual, int index0, int index1) {
-        int numberOfSwaps = index1 - index0;
-        for (int i = 0; i < numberOfSwaps; i++) {
-            Collections.swap(individual.getPhenotype(), index0 + i, index0 + i + 1);
+        if (index0 != index1) {
+            if (index0 < index1) {
+                int numberOfSwaps = index1 - index0;
+                for (int i = 0; i < numberOfSwaps; i++) {
+                    Collections.swap(individual.getPhenotype(), index0 + i, index0 + i + 1);
+                }
+            } else {
+                int numberOfSwaps = index0 - index1;
+                for (int i = 0; i < numberOfSwaps; i++) {
+                    Collections.swap(individual.getPhenotype(), index0 - i, index0 - i - 1);
+                }
+            }
         }
     }
 
@@ -89,13 +116,7 @@ public class Mutation extends Operator {
         int index1 = getRandomIndexExclude(null, size);
         logger.debug("Первый индекс: " + index0);
         logger.debug("Второй индекс: " + index1);
-        if (index0 != index1) {
-            if (index0 < index1) {
-                insert(individual, index0, index1);
-            } else {
-                insert(individual, index1, index0);
-            }
-        }
+        insert(individual, index0, index1);
     }
 
     public void mutationByShifting(Individual individual, int size) {
@@ -106,13 +127,7 @@ public class Mutation extends Operator {
         if (index0 == index1) {
             int index2 = getRandomIndexExclude(index0, size);
             logger.debug("Третий индекс: " + index2);
-            if (index0 != index2) {
-                if (index0 < index2) {
-                    insert(individual, index0, index2);
-                } else {
-                    insert(individual, index2, index0);
-                }
-            }
+            insert(individual, index0, index2);
         } else {
             if (!(index0 == 0 && index1 == size - 1 ||
                   index0 == size - 1 && index1 == 0)) {

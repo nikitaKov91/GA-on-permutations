@@ -20,19 +20,22 @@ import java.util.Map;
  */
 public class App {
 
+    public static final int runsAmount = 100;
     static Logger logger = LoggerFactory.getLogger(App.class);
     static boolean isWriteProbabilitiesInFiles;
 
     public static void runProblem(Map<OperatorType, Map<OperatorSettings, Operator>> allOperators, int problemNumber) throws IOException {
-        List<String> result = new ArrayList<>();
+        List<String> results = new ArrayList<>();
         for (Map.Entry<OperatorSettings, Operator> selection : allOperators.get(OperatorType.SELECTION).entrySet()) {
             for (Map.Entry<OperatorSettings, Operator> recombination : allOperators.get(OperatorType.RECOMBINATION).entrySet()) {
                 for (Map.Entry<OperatorSettings, Operator> mutation : allOperators.get(OperatorType.MUTATION).entrySet()) {
-                    result.add(selection.getValue().toString());
-                    result.add(recombination.getValue().toString());
-                    result.add(mutation.getValue().toString());
+                    results.add(selection.getValue().toString());
+                    results.add(recombination.getValue().toString());
+                    results.add(mutation.getValue().toString());
                     StringBuilder sb = new StringBuilder();
-                    for (int k = 0; k <= 99; k++) {
+                    Double min = Double.MAX_VALUE;
+                    Double sum = 0.d;
+                    for (int k = 0; k < runsAmount; k++) {
                         Algorithm algorithm = new Algorithm();
                         algorithm.init("problems\\problem" + problemNumber + ".txt",
                                 "settings\\settings" + problemNumber + ".txt");
@@ -51,27 +54,43 @@ public class App {
                         operators.put(OperatorType.MUTATION, mutations);
                         algorithm.setOperators(operators);
                         algorithm.process(problemNumber, k == 0 ? isWriteProbabilitiesInFiles : false);
-                        sb.append(String.valueOf(algorithm.getPopulation().getBestIndividual().getObjectiveFunctionValue()));
+                        Double result = algorithm.getPopulation().getBestIndividual().getObjectiveFunctionValue();
+                        sum += result;
+                        if (result < min) {
+                            min = result;
+                        }
+                        sb.append(result);
                         sb.append("\t");
                     }
-                    result.add(sb.toString());
+                    results.add(sb.toString());
+                    results.add("best: " + min);
+                    results.add("average: " + sum / runsAmount);
                 }
             }
         }
-        Files.write(Paths.get("results\\result-problem" + problemNumber + ".txt"), result);
+        Files.write(Paths.get("results\\result-problem" + problemNumber + ".txt"), results);
     }
 
     public static void runProblem(int problemNumber) throws IOException {
-        List<String> result = new ArrayList<>();
-        for (int k = 0; k <= 99; k++) {
+        List<String> results = new ArrayList<>();
+        Double min = Double.MAX_VALUE;
+        Double sum = 0.d;
+        for (int k = 0; k < runsAmount; k++) {
             Algorithm algorithm = new Algorithm();
             algorithm.init("problems\\problem" + problemNumber + ".txt",
                     "settings\\settings" + problemNumber + ".txt");
             algorithm.initOperatorSettings("operators");
             algorithm.process(problemNumber, k == 0 ? isWriteProbabilitiesInFiles : false);
-            result.add(String.valueOf(algorithm.getPopulation().getBestIndividual().getObjectiveFunctionValue()));
+            Double result = algorithm.getPopulation().getBestIndividual().getObjectiveFunctionValue();
+            sum += result;
+            results.add(result.toString());
+            if (result < min) {
+                min = result;
+            }
         }
-        Files.write(Paths.get("results\\result-problem" + problemNumber + ".txt"), result);
+        results.add("best: " + min);
+        results.add("average: " + sum / runsAmount);
+        Files.write(Paths.get("results\\result-problem" + problemNumber + ".txt"), results);
     }
 
     public static void main(String[] args) {
