@@ -3,6 +3,7 @@ package algorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import settings.SelectionSettings;
+import util.IndividualComparator;
 import util.OperatorType;
 import util.RandomUtils;
 import util.RankingSelectionType;
@@ -64,22 +65,6 @@ public class Selection extends Operator {
 
     }
 
-    class IndividualWrapperComparator implements Comparator<IndividualWrapper> {
-
-        @Override
-        public int compare(IndividualWrapper o1, IndividualWrapper o2) {
-            double difference = o1.individual.getFitness() - o2.individual.getFitness();
-            if (difference == 0) {
-                return 0;
-            } else if (difference > 0) {
-                return 1;
-            } else {
-                return -1;
-            }
-        }
-
-    }
-
     private void linearSelectionRanking(List<IndividualWrapper> individualsSorted) {
         // проставляем ранги
         int i = 0;
@@ -133,7 +118,10 @@ public class Selection extends Operator {
             individualsSorted.add(new IndividualWrapper(individual));
         }
         // упорядочиваем индивидов по возрастанию пригодности
-        Collections.sort(individualsSorted, new IndividualWrapperComparator());
+        Collections.sort(individualsSorted, (o1, o2) -> {
+            double difference = o1.individual.getFitness() - o2.individual.getFitness();
+            return IndividualComparator.calcReturnValue(difference);
+        });
         if (settings.getRankingSelectionType() == RankingSelectionType.EXPONENTIAL) {
             exponentialSelectionRanking(individualsSorted);
         } else if (settings.getRankingSelectionType() == RankingSelectionType.LINEAR) {

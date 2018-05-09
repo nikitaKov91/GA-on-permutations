@@ -65,7 +65,8 @@ public class SelectionSettings implements OperatorSettings, Serializable {
         if (selectionType != that.selectionType) return false;
         if (tournamentSize != null && !tournamentSize.equals(that.tournamentSize)) return false;
         if (rankingSelectionType != that.rankingSelectionType) return false;
-        return weight.equals(that.weight);
+        if (weight != null && !weight.equals(that.weight)) return false;
+        return true;
     }
 
     @Override

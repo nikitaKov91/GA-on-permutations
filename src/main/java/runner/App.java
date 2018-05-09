@@ -23,6 +23,8 @@ public class App {
     public static final int runsAmount = 100;
     static Logger logger = LoggerFactory.getLogger(App.class);
     static boolean isWriteProbabilitiesInFiles;
+    static boolean isSelfConfiguration = true;
+    static boolean isUseElitism = true;
 
     public static void runProblem(Map<OperatorType, Map<OperatorSettings, Operator>> allOperators, int problemNumber) throws IOException {
         List<String> results = new ArrayList<>();
@@ -53,7 +55,7 @@ public class App {
                         mutations.put(mutation.getKey(), mutation.getValue());
                         operators.put(OperatorType.MUTATION, mutations);
                         algorithm.setOperators(operators);
-                        algorithm.process(problemNumber, k == 0 ? isWriteProbabilitiesInFiles : false);
+                        algorithm.process(problemNumber, k == 0 ? isWriteProbabilitiesInFiles : false, isUseElitism);
                         Double result = algorithm.getPopulation().getBestIndividual().getObjectiveFunctionValue();
                         sum += result;
                         if (result < min) {
@@ -80,7 +82,7 @@ public class App {
             algorithm.init("problems\\problem" + problemNumber + ".txt",
                     "settings\\settings" + problemNumber + ".txt");
             algorithm.initOperatorSettings("operators");
-            algorithm.process(problemNumber, k == 0 ? isWriteProbabilitiesInFiles : false);
+            algorithm.process(problemNumber, k == 0 ? isWriteProbabilitiesInFiles : false, isUseElitism);
             Double result = algorithm.getPopulation().getBestIndividual().getObjectiveFunctionValue();
             sum += result;
             results.add(result.toString());
@@ -93,8 +95,7 @@ public class App {
         Files.write(Paths.get("results\\result-problem" + problemNumber + ".txt"), results);
     }
 
-    public static void main(String[] args) {
-        boolean isSelfConfiguration = true;
+    private static void readParams(String[] args) {
         if (args.length > 0) {
             if (!"1".equals(args[0])) {
                 isSelfConfiguration = false;
@@ -105,6 +106,15 @@ public class App {
                 isWriteProbabilitiesInFiles = true;
             }
         }
+        if (args.length > 2) {
+            if (!"1".equals(args[2])) {
+                isUseElitism = false;
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        readParams(args);
         try {
             if (isSelfConfiguration) {
                 for (int i = 0; i < 3; i++) {

@@ -34,7 +34,7 @@ public class Algorithm {
         Settings.init(this, settingsFilePath);
     }
 
-    public void process(int problemNumber, boolean isWriteProbabilitiesInFiles) throws IOException {
+    public void process(int problemNumber, boolean isWriteProbabilitiesInFiles, boolean isUseElitism) throws IOException {
         logger.info("Алгоритм. Начало");
         population.init(problem);
         if (isWriteProbabilitiesInFiles) {
@@ -46,6 +46,9 @@ public class Algorithm {
                 population.applyOperator(operatorType, operators);
             }
             population.calcFitness(problem);
+            if (isUseElitism) {
+                population.replacement();
+            }
             population.findBest();
             population.calcOperatorsFitness(operators);
             population.configureOperators(operators, settings.getGenerationsAmount());
@@ -53,6 +56,9 @@ public class Algorithm {
                 if (countOfGenerations % AMOUNT_OF_ITERATIONS_FOR_PROBABILITIES_OUTPUT == 0) {
                     Operator.writeProbabilitiesInFiles(operators, countOfGenerations, problemNumber);
                 }
+            }
+            if (isUseElitism) {
+                population.rememberGeneration();
             }
         } while (stopCriterion());
         logger.info("Алгоритм. Окончание");

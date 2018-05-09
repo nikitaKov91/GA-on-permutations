@@ -3,30 +3,32 @@ package algorithm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import settings.OperatorSettings;
+import util.IndividualComparator;
 import util.OperatorType;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by Коваленко Никита on 27.08.2017.
  */
 public class Population {
 
+    private static final int replacementPercent = 1;
+
     private static Logger logger = LoggerFactory.getLogger(Population.class);
 
     private List<Individual> parents = new ArrayList<>();
-    private List<Individual> individuals;
+    private List<Individual> oldGeneration;
+    private List<Individual> newGeneration;
     private Individual bestIndividual;
     private Integer individualsAmount;
 
     public void init(Problem problem) {
         logger.info("Ининициализация популяции. Начало");
-        individuals = new ArrayList<>();
+        newGeneration = new ArrayList<>();
+        oldGeneration = new ArrayList<>();
         for (int i = 0; i < individualsAmount; i++) {
-            individuals.add(Individual.createIndividual(problem.getDimension()));
+            newGeneration.add(Individual.createIndividual(problem.getDimension()));
         }
         calcFitness(problem);
         findBest();
@@ -35,7 +37,7 @@ public class Population {
 
     public void calcFitness(Problem problem) {
         logger.info("Подсчёт значения функции пригодности в популяции. Начало");
-        for (Individual individual : individuals) {
+        for (Individual individual : newGeneration) {
             individual.calcFitness(problem);
         }
         logger.info("Подсчёт значения функции пригодности в популяции. Окончание");
@@ -57,7 +59,7 @@ public class Population {
 
     public void findBest() {
         logger.info("Выбор лучшего индивида в популяции. Начало");
-        Individual best = getBest(individuals);
+        Individual best = getBest(newGeneration);
         // первое поколение - просто берём лучшего
         if (bestIndividual == null) {
             bestIndividual = Individual.clone(best);
@@ -82,6 +84,29 @@ public class Population {
         logger.info("Выбор лучшего индивида в популяции. Окончание");
     }
 
+    public void rememberGeneration() {
+        Collections.sort(newGeneration, new IndividualComparator());
+        oldGeneration.clear();
+        // округляем в большую сторону
+        int size = newGeneration.size();
+        int amount = (int) Math.ceil(size * replacementPercent / 100d);
+        // забираем индивидов с лучшей пригодностью
+        while (amount > 0) {
+            oldGeneration.add(Individual.clone(newGeneration.get(size - amount)));
+            amount -= 1;
+        }
+    }
+
+    public void replacement() {
+        if (oldGeneration.size() > 0) {
+            Collections.sort(newGeneration, new IndividualComparator());
+            newGeneration.subList(0, oldGeneration.size()).clear();
+            for (Individual individual : oldGeneration) {
+                newGeneration.add(Individual.clone(individual));
+            }
+        }
+    }
+
     public void applyOperator(OperatorType operatorType, Map<OperatorType, Map<OperatorSettings, Operator>> operators) {
         switch (operatorType) {
             case SELECTION:
@@ -89,22 +114,22 @@ public class Population {
                 parents.clear();
                 for (int i = 0; i < individualsAmount; i++) {
                     Operator operator = Operator.selectOperator(operators.get(operatorType));
-                    operator.apply(individuals, parents, 2);
+                    operator.apply(newGeneration, parents, 2);
                 }
                 logger.info("Селекция в популяции. Окончание");
                 break;
             case RECOMBINATION:
                 logger.info("Рекомбинация в популяции. Начало");
-                individuals.clear();
+                newGeneration.clear();
                 for (int i = 0; i < parents.size(); i += 2) {
                     Operator operator = Operator.selectOperator(operators.get(operatorType));
-                    operator.apply(individuals, parents, i);
+                    operator.apply(newGeneration, parents, i);
                 }
                 logger.info("Рекомбинация в популяции. Окончание");
                 break;
             case MUTATION:
                 logger.info("Мутация в популяции. Начало");
-                for (Individual individual : individuals) {
+                for (Individual individual : newGeneration) {
                     Operator operator = Operator.selectOperator(operators.get(operatorType));
                     operator.apply(individual);
                 }
@@ -115,7 +140,7 @@ public class Population {
 
     public void calcOperatorsFitness(Map<OperatorType, Map<OperatorSettings, Operator>> operators) {
         logger.info("Подсчёт пригодности операторов в популяции. Начало");
-        Operator.calcOperatorFitness(individuals, operators);
+        Operator.calcOperatorFitness(newGeneration, operators);
         logger.info("Подсчёт пригодности операторов в популяции. Окончание");
     }
 
@@ -128,24 +153,8 @@ public class Population {
         logger.info("Подсчёт пригодности операторов в популяции. Окончание");
     }
 
-    public List<Individual> getIndividuals() {
-        return individuals;
-    }
-
-    public void setIndividuals(List<Individual> individuals) {
-        this.individuals = individuals;
-    }
-
     public Individual getBestIndividual() {
         return bestIndividual;
-    }
-
-    public void setBestIndividual(Individual bestIndividual) {
-        this.bestIndividual = bestIndividual;
-    }
-
-    public Integer getIndividualsAmount() {
-        return individualsAmount;
     }
 
     public void setIndividualsAmount(Integer individualsAmount) {
