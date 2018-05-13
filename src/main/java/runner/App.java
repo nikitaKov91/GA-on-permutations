@@ -1,6 +1,7 @@
 package runner;
 
 import algorithm.Algorithm;
+import algorithm.ChainedAlgorithm;
 import algorithm.Operator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,7 @@ public class App {
     public static final int runsAmount = 100;
     static Logger logger = LoggerFactory.getLogger(App.class);
     static boolean isWriteProbabilitiesInFiles;
-    static boolean isSelfConfiguration = true;
+    static int selfConfigurationType = 0;
     static boolean isUseElitism = true;
 
     public static void runProblem(Map<OperatorType, Map<OperatorSettings, Operator>> allOperators, int problemNumber) throws IOException {
@@ -55,7 +56,11 @@ public class App {
                         mutations.put(mutation.getKey(), mutation.getValue());
                         operators.put(OperatorType.MUTATION, mutations);
                         algorithm.setOperators(operators);
-                        algorithm.process(problemNumber, k == 0 ? isWriteProbabilitiesInFiles : false, isUseElitism);
+                        if (isUseElitism) {
+                            algorithm.process(problemNumber, k == 0 ? isWriteProbabilitiesInFiles : false, true);
+                        } else {
+                            algorithm.process(problemNumber, k == 0 ? isWriteProbabilitiesInFiles : false);
+                        }
                         Double result = algorithm.getPopulation().getBestIndividual().getObjectiveFunctionValue();
                         sum += result;
                         if (result < min) {
@@ -78,12 +83,30 @@ public class App {
         Double min = Double.MAX_VALUE;
         Double sum = 0.d;
         for (int k = 0; k < runsAmount; k++) {
-            Algorithm algorithm = new Algorithm();
-            algorithm.init("problems\\problem" + problemNumber + ".txt",
-                    "settings\\settings" + problemNumber + ".txt");
-            algorithm.initOperatorSettings("operators");
-            algorithm.process(problemNumber, k == 0 ? isWriteProbabilitiesInFiles : false, isUseElitism);
-            Double result = algorithm.getPopulation().getBestIndividual().getObjectiveFunctionValue();
+            Double result = null;
+            if (selfConfigurationType == 1) {
+                Algorithm algorithm = new Algorithm();
+                algorithm.init("problems\\problem" + problemNumber + ".txt",
+                        "settings\\settings" + problemNumber + ".txt");
+                algorithm.initOperatorSettings("operators");
+                if (isUseElitism) {
+                    algorithm.process(problemNumber, k == 0 ? isWriteProbabilitiesInFiles : false, true);
+                } else {
+                    algorithm.process(problemNumber, k == 0 ? isWriteProbabilitiesInFiles : false);
+                }
+                result = algorithm.getPopulation().getBestIndividual().getObjectiveFunctionValue();
+            } else if (selfConfigurationType == 2) {
+                ChainedAlgorithm chainedAlgorithm = new ChainedAlgorithm();
+                chainedAlgorithm.init("problems\\problem" + problemNumber + ".txt",
+                        "settings\\settings" + problemNumber + ".txt");
+                chainedAlgorithm.initOperatorSettings("operators");
+                if (isUseElitism) {
+                    chainedAlgorithm.process(problemNumber, k == 0 ? isWriteProbabilitiesInFiles : false, true);
+                } else {
+                    chainedAlgorithm.process(problemNumber, k == 0 ? isWriteProbabilitiesInFiles : false);
+                }
+                result = chainedAlgorithm.getPopulation().getBestIndividual().getObjectiveFunctionValue();
+            }
             sum += result;
             results.add(result.toString());
             if (result < min) {
@@ -97,8 +120,8 @@ public class App {
 
     private static void readParams(String[] args) {
         if (args.length > 0) {
-            if (!"1".equals(args[0])) {
-                isSelfConfiguration = false;
+            if (!"".equals(args[0])) {
+                selfConfigurationType = Integer.parseInt(args[0]);
             }
         }
         if (args.length > 1) {
@@ -116,7 +139,7 @@ public class App {
     public static void main(String[] args) {
         readParams(args);
         try {
-            if (isSelfConfiguration) {
+            if (selfConfigurationType == 1 || selfConfigurationType == 2) {
                 for (int i = 0; i < 3; i++) {
                     int finalI = i;
                     new Thread(() -> {

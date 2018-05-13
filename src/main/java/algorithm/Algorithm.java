@@ -20,21 +20,22 @@ import java.util.Map;
 public class Algorithm {
 
     private static Logger logger = LoggerFactory.getLogger(Algorithm.class);
-    private static int AMOUNT_OF_ITERATIONS_FOR_PROBABILITIES_OUTPUT = 10;
+    protected static final int AMOUNT_OF_ITERATIONS_FOR_PROBABILITIES_OUTPUT = 10;
+    protected static final int REPLACEMENT_PERCENT = 1;
 
-    private Settings settings = new Settings();
-    private Problem problem = new Problem();
-    private Population population = new Population();
-    private Map<OperatorType, Map<OperatorSettings, Operator>> operators = new HashMap<>();
+    protected Settings settings = new Settings();
+    protected Problem problem = new Problem();
+    protected Population population = new Population();
+    protected Map<OperatorType, Map<OperatorSettings, Operator>> operators = new HashMap<>();
 
-    private int countOfGenerations = 0;
+    protected int countOfGenerations = 0;
 
     public void init(String problemFilePath, String settingsFilePath) throws IOException {
         problem.init(problemFilePath);
         Settings.init(this, settingsFilePath);
     }
 
-    public void process(int problemNumber, boolean isWriteProbabilitiesInFiles, boolean isUseElitism) throws IOException {
+    public void process(int problemNumber, boolean isWriteProbabilitiesInFiles) throws IOException {
         logger.info("Алгоритм. Начало");
         population.init(problem);
         if (isWriteProbabilitiesInFiles) {
@@ -46,9 +47,6 @@ public class Algorithm {
                 population.applyOperator(operatorType, operators);
             }
             population.calcFitness(problem);
-            if (isUseElitism) {
-                population.replacement();
-            }
             population.findBest();
             population.calcOperatorsFitness(operators);
             population.configureOperators(operators, settings.getGenerationsAmount());
@@ -57,14 +55,38 @@ public class Algorithm {
                     Operator.writeProbabilitiesInFiles(operators, countOfGenerations, problemNumber);
                 }
             }
-            if (isUseElitism) {
-                population.rememberGeneration();
-            }
         } while (stopCriterion());
         logger.info("Алгоритм. Окончание");
     }
 
-    private boolean stopCriterion() {
+    public void process(int problemNumber, boolean isWriteProbabilitiesInFiles, boolean isUseElitism) throws IOException {
+        logger.info("Алгоритм. Начало");
+        Integer amountOfReplace = (int) Math.ceil(problem.getDimension() * REPLACEMENT_PERCENT / 100d);
+        population.init(problem);
+        if (isWriteProbabilitiesInFiles) {
+            Operator.writeHeadProbabilitiesInFiles(operators, problemNumber);
+        }
+        do {
+            countOfGenerations += 1;
+            for (OperatorType operatorType : OperatorType.values()) {
+                population.applyOperator(operatorType, operators);
+            }
+            population.calcFitness(problem);
+            population.replacement();
+            population.findBest();
+            population.calcOperatorsFitness(operators);
+            population.configureOperators(operators, settings.getGenerationsAmount());
+            if (isWriteProbabilitiesInFiles) {
+                if (countOfGenerations % AMOUNT_OF_ITERATIONS_FOR_PROBABILITIES_OUTPUT == 0) {
+                    Operator.writeProbabilitiesInFiles(operators, countOfGenerations, problemNumber);
+                }
+            }
+            population.rememberGeneration(amountOfReplace);
+        } while (stopCriterion());
+        logger.info("Алгоритм. Окончание");
+    }
+
+    protected boolean stopCriterion() {
         logger.info("Алгоритм. Проверка критерия остановки. Начало");
         logger.info("Поколение " + countOfGenerations);
         boolean ret = true;

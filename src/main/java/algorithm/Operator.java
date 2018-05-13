@@ -34,6 +34,8 @@ public abstract class Operator {
     private Double fitness;
     private int amountOfIndividuals;
 
+    private Map<OperatorType, Map<OperatorSettings, Operator>> relatedOperators = new HashMap<>();
+
     public Double getProbability() {
         return probability;
     }
@@ -50,23 +52,11 @@ public abstract class Operator {
         this.distribution = distribution;
     }
 
-    public Double getFitness() {
-        return fitness;
-    }
-
-    public void setFitness(Double fitness) {
-        this.fitness = fitness;
-    }
-
-    public int getAmountOfIndividuals() {
-        return amountOfIndividuals;
-    }
-
-    public void setAmountOfIndividuals(int amountOfIndividuals) {
-        this.amountOfIndividuals = amountOfIndividuals;
-    }
-
     public abstract OperatorSettings getSettings();
+
+    public Map<OperatorType, Map<OperatorSettings, Operator>> getRelatedOperators() {
+        return relatedOperators;
+    }
 
     public abstract void apply(Individual individual);
 
@@ -196,9 +186,19 @@ public abstract class Operator {
                 }
             }
         }
+        // а теперь для связанных операторов
+        for (Map.Entry<OperatorType, Map<OperatorSettings, Operator>> entry : operators.entrySet()) {
+            for (Map.Entry<OperatorSettings, Operator> operator : entry.getValue().entrySet()) {
+                Map<OperatorType, Map<OperatorSettings, Operator>> relatedOperators = operator.getValue().getRelatedOperators();
+                if (relatedOperators.size() > 0) {
+                    calcOperatorFitness(individuals, relatedOperators);
+                }
+            }
+        }
     }
 
-    public static void initOperatorSettings(Map<OperatorType, Map<OperatorSettings, Operator>> operators, String operatorsFolder) throws IOException {
+    public static void initOperatorSettings(Map<OperatorType, Map<OperatorSettings, Operator>> operators,
+                                            String operatorsFolder) throws IOException {
         logger.info("Инициализация настроек операторов. Начало");
 
         for (OperatorType operatorType : OperatorType.values()) {
@@ -224,28 +224,60 @@ public abstract class Operator {
         logger.info("Инициализация настроек операторов. Окончание");
     }
 
+    public static List<List<String>> getOperatorsSettings(OperatorType needOperatorType, String operatorsFolder) throws IOException {
+        List<List<String>> result = new ArrayList<>();
+
+        int operatorsCount = 0;
+        File operatorFile = new File(operatorsFolder + "\\operator" + operatorsCount + ".txt");
+        while (operatorFile.exists()) {
+            List<String> content = Files.readAllLines(Paths.get(operatorFile.getAbsolutePath()));
+            OperatorType operatorType = OperatorType.valueOf(content.get(0));
+            if (operatorType == needOperatorType) {
+                result.add(content);
+            }
+            operatorsCount++;
+            operatorFile = new File(operatorsFolder + "\\operator" + operatorsCount + ".txt");
+        }
+
+        return result;
+    }
+
     public static void writeHeadProbabilitiesInFiles(Map<OperatorType, Map<OperatorSettings, Operator>> operators, int problemNumber) throws IOException {
+        writeHeadProbabilitiesInFiles(operators, problemNumber, null);
+    }
+
+    public static void writeHeadProbabilitiesInFiles(Map<OperatorType, Map<OperatorSettings, Operator>> operators,
+                                                     int problemNumber, OperatorType relatedOperatorType) throws IOException {
         StringBuilder sbRecombinations = new StringBuilder();
         StringBuilder sbSelections = new StringBuilder();
         StringBuilder sbMutations = new StringBuilder();
 
         for (Map.Entry<OperatorType, Map<OperatorSettings, Operator>> entry : operators.entrySet()) {
             for (Map.Entry<OperatorSettings, Operator> operator : entry.getValue().entrySet()) {
-                if (operator.getKey().getOperatorType() == RECOMBINATION) {
-                    if (sbRecombinations.length() > 0) {
-                        sbRecombinations.append("\t");
+                OperatorType operatorType = operator.getKey().getOperatorType();
+                if (operatorType != relatedOperatorType) {
+                    StringBuilder sb = null;
+                    if (operatorType == RECOMBINATION) {
+                        sb = sbRecombinations;
+                    } else if (operatorType == SELECTION) {
+                        sb = sbSelections;
+                    } else if (operatorType == MUTATION) {
+                        sb = sbMutations;
                     }
-                    sbRecombinations.append(operator.getKey().toString());
-                } else if (operator.getKey().getOperatorType() == SELECTION) {
-                    if (sbSelections.length() > 0) {
-                        sbSelections.append("\t");
+                    if (sb.length() > 0) {
+                        sb.append("\t");
                     }
-                    sbSelections.append(operator.getKey().toString());
-                } else if (operator.getKey().getOperatorType() == MUTATION) {
-                    if (sbMutations.length() > 0) {
-                        sbMutations.append("\t");
+                    Map<OperatorType, Map<OperatorSettings, Operator>> relatedOperators = operator.getValue().getRelatedOperators();
+                    if (relatedOperators.size() == 0) {
+                        sb.append(operator.getKey().toString());
+                    } else {
+                        for (Map.Entry<OperatorType, Map<OperatorSettings, Operator>> relEntry : relatedOperators.entrySet()) {
+                            for (Map.Entry<OperatorSettings, Operator> relatedOperator : relEntry.getValue().entrySet()) {
+                                sb.append(operator.getKey().toString()).append(" ").
+                                        append(relatedOperator.getKey().toString()).append("\t");
+                            }
+                        }
                     }
-                    sbMutations.append(operator.getKey().toString());
                 }
             }
         }
@@ -264,30 +296,46 @@ public abstract class Operator {
 
     public static void writeProbabilitiesInFiles(Map<OperatorType, Map<OperatorSettings, Operator>> operators,
                                                  int countOfGenerations, int problemNumber) throws IOException {
+        writeProbabilitiesInFiles(operators, countOfGenerations, problemNumber, null);
+    }
+
+    public static void writeProbabilitiesInFiles(Map<OperatorType, Map<OperatorSettings, Operator>> operators,
+                                                 int countOfGenerations, int problemNumber,
+                                                 OperatorType relatedOperatorType) throws IOException {
+
         StringBuilder sbRecombinations = new StringBuilder();
         StringBuilder sbSelections = new StringBuilder();
         StringBuilder sbMutations = new StringBuilder();
 
-        sbRecombinations.append(countOfGenerations + "\t");
-        sbSelections.append(countOfGenerations + "\t");
-        sbMutations.append(countOfGenerations + "\t");
+        if (relatedOperatorType != RECOMBINATION) sbRecombinations.append(countOfGenerations + "\t");
+        if (relatedOperatorType != SELECTION) sbSelections.append(countOfGenerations + "\t");
+        if (relatedOperatorType != MUTATION) sbMutations.append(countOfGenerations + "\t");
+
         for (Map.Entry<OperatorType, Map<OperatorSettings, Operator>> entry : operators.entrySet()) {
             for (Map.Entry<OperatorSettings, Operator> operator : entry.getValue().entrySet()) {
-                if (operator.getKey().getOperatorType() == RECOMBINATION) {
-                    if (sbRecombinations.length() > 0) {
-                        sbRecombinations.append("\t");
+                OperatorType operatorType = operator.getKey().getOperatorType();
+                if (operatorType != relatedOperatorType) {
+                    StringBuilder sb = null;
+                    if (operatorType == RECOMBINATION) {
+                        sb = sbRecombinations;
+                    } else if (operatorType == SELECTION) {
+                        sb = sbSelections;
+                    } else if (operatorType == MUTATION) {
+                        sb = sbMutations;
                     }
-                    sbRecombinations.append(operator.getValue().probability);
-                } else if (operator.getKey().getOperatorType() == SELECTION) {
-                    if (sbSelections.length() > 0) {
-                        sbSelections.append("\t");
+                    if (sb.length() > 0) {
+                        sb.append("\t");
                     }
-                    sbSelections.append(operator.getValue().probability);
-                } else if (operator.getKey().getOperatorType() == MUTATION) {
-                    if (sbMutations.length() > 0) {
-                        sbMutations.append("\t");
+                    Map<OperatorType, Map<OperatorSettings, Operator>> relatedOperators = operator.getValue().getRelatedOperators();
+                    if (relatedOperators.size() == 0) {
+                        sb.append(operator.getValue().probability);
+                    } else {
+                        for (Map.Entry<OperatorType, Map<OperatorSettings, Operator>> relEntry : relatedOperators.entrySet()) {
+                            for (Map.Entry<OperatorSettings, Operator> relatedOperator : relEntry.getValue().entrySet()) {
+                                sb.append(operator.getValue().probability * relatedOperator.getValue().probability).append("\t");
+                            }
+                        }
                     }
-                    sbMutations.append(operator.getValue().probability);
                 }
             }
         }
@@ -298,7 +346,6 @@ public abstract class Operator {
         recombinations.add(sbRecombinations.toString());
         selections.add(sbSelections.toString());
         mutations.add(sbMutations.toString());
-
 
         Files.write(Paths.get("probabilities\\problem" + problemNumber + "-recombinations.txt"),
                 recombinations, StandardOpenOption.APPEND);

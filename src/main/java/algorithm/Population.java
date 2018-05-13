@@ -13,8 +13,6 @@ import java.util.*;
  */
 public class Population {
 
-    private static final int replacementPercent = 1;
-
     private static Logger logger = LoggerFactory.getLogger(Population.class);
 
     private List<Individual> parents = new ArrayList<>();
@@ -84,12 +82,11 @@ public class Population {
         logger.info("Выбор лучшего индивида в популяции. Окончание");
     }
 
-    public void rememberGeneration() {
+    public void rememberGeneration(int amount) {
         Collections.sort(newGeneration, new IndividualComparator());
         oldGeneration.clear();
         // округляем в большую сторону
         int size = newGeneration.size();
-        int amount = (int) Math.ceil(size * replacementPercent / 100d);
         // забираем индивидов с лучшей пригодностью
         while (amount > 0) {
             oldGeneration.add(Individual.clone(newGeneration.get(size - amount)));
@@ -138,6 +135,16 @@ public class Population {
         }
     }
 
+    public void applyOperatorWithRelated(Map<OperatorSettings, Operator> operators, OperatorType relatedOperatorType) {
+        logger.info("Применение связанных операторов в популяции. Начало");
+        for (Individual individual : newGeneration) {
+            Operator operator = operators.get(individual.getOperatorsSettings().get(OperatorType.SELECTION));
+            Operator relatedOperator = Operator.selectOperator(operator.getRelatedOperators().get(relatedOperatorType));
+            relatedOperator.apply(individual);
+        }
+        logger.info("Применение связанных операторов в популяции. Окончание");
+    }
+
     public void calcOperatorsFitness(Map<OperatorType, Map<OperatorSettings, Operator>> operators) {
         logger.info("Подсчёт пригодности операторов в популяции. Начало");
         Operator.calcOperatorFitness(newGeneration, operators);
@@ -149,6 +156,16 @@ public class Population {
         for (Map.Entry<OperatorType, Map<OperatorSettings, Operator>> entry : operators.entrySet()) {
             Operator.setOperatorsProbabilities(entry.getValue(), generationsAmount);
             Operator.setOperatorsDistribution(entry.getValue());
+            // а теперь для связанных операторов
+            for (Map.Entry<OperatorSettings, Operator> operator : entry.getValue().entrySet()) {
+                Map<OperatorType, Map<OperatorSettings, Operator>> relatedOperators = operator.getValue().getRelatedOperators();
+                if (relatedOperators.size() > 0) {
+                    for (Map.Entry<OperatorType, Map<OperatorSettings, Operator>> relEntry : relatedOperators.entrySet()) {
+                        Operator.setOperatorsProbabilities(relEntry.getValue(), generationsAmount);
+                        Operator.setOperatorsDistribution(relEntry.getValue());
+                    }
+                }
+            }
         }
         logger.info("Подсчёт пригодности операторов в популяции. Окончание");
     }
