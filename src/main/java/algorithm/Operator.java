@@ -165,6 +165,15 @@ public abstract class Operator {
             for (Map.Entry<OperatorSettings, Operator> operator : entry.getValue().entrySet()) {
                 operator.getValue().fitness = 0.0;
                 operator.getValue().amountOfIndividuals = 0;
+                Map<OperatorType, Map<OperatorSettings, Operator>> relatedOperators = operator.getValue().getRelatedOperators();
+                if (relatedOperators.size() > 0) {
+                    for (Map.Entry<OperatorType, Map<OperatorSettings, Operator>> relEntry : relatedOperators.entrySet()) {
+                        for (Map.Entry<OperatorSettings, Operator> relOperator : relEntry.getValue().entrySet()) {
+                            relOperator.getValue().fitness = 0.0;
+                            relOperator.getValue().amountOfIndividuals = 0;
+                        }
+                    }
+                }
             }
         }
         // считаем кол-во индивидов по определённому оператору и сумму их пригодностей
@@ -175,6 +184,15 @@ public abstract class Operator {
                 Operator operator = entry.getValue().get(operatorSettings);
                 operator.amountOfIndividuals += 1;
                 operator.fitness += individual.getFitness();
+                Map<OperatorType, Map<OperatorSettings, Operator>> relatedOperators = operator.getRelatedOperators();
+                if (relatedOperators.size() > 0) {
+                    for (Map.Entry<OperatorType, Map<OperatorSettings, Operator>> relEntry : relatedOperators.entrySet()) {
+                        OperatorSettings relOperatorSettings = individual.getOperatorsSettings().get(relEntry.getKey());
+                        Operator relatedOperator = relEntry.getValue().get(relOperatorSettings);
+                        relatedOperator.amountOfIndividuals += 1;
+                        relatedOperator.fitness += individual.getFitness();
+                    }
+                }
             }
         }
         // считаем среднюю пригодность
@@ -184,14 +202,16 @@ public abstract class Operator {
                 if (amountOfIndividuals != 0) {
                     operator.getValue().fitness /= amountOfIndividuals;
                 }
-            }
-        }
-        // а теперь для связанных операторов
-        for (Map.Entry<OperatorType, Map<OperatorSettings, Operator>> entry : operators.entrySet()) {
-            for (Map.Entry<OperatorSettings, Operator> operator : entry.getValue().entrySet()) {
                 Map<OperatorType, Map<OperatorSettings, Operator>> relatedOperators = operator.getValue().getRelatedOperators();
                 if (relatedOperators.size() > 0) {
-                    calcOperatorFitness(individuals, relatedOperators);
+                    for (Map.Entry<OperatorType, Map<OperatorSettings, Operator>> relEntry : relatedOperators.entrySet()) {
+                        for (Map.Entry<OperatorSettings, Operator> relOperator : relEntry.getValue().entrySet()) {
+                            int relAmountOfIndividuals = relOperator.getValue().amountOfIndividuals;
+                            if (relAmountOfIndividuals != 0) {
+                                relOperator.getValue().fitness /= relAmountOfIndividuals;
+                            }
+                        }
+                    }
                 }
             }
         }

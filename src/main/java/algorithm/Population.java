@@ -133,14 +133,21 @@ public class Population {
                 logger.info("Мутация в популяции. Окончание");
                 break;
         }
+
     }
 
-    public void applyOperatorWithRelated(Map<OperatorSettings, Operator> operators, OperatorType relatedOperatorType) {
+    public void applyOperatorWithRelated(Map<OperatorSettings, Operator> operators,
+                                         OperatorType mainOperatorType) {
         logger.info("Применение связанных операторов в популяции. Начало");
         for (Individual individual : newGeneration) {
-            Operator operator = operators.get(individual.getOperatorsSettings().get(OperatorType.SELECTION));
-            Operator relatedOperator = Operator.selectOperator(operator.getRelatedOperators().get(relatedOperatorType));
-            relatedOperator.apply(individual);
+            Operator operator = operators.get(individual.getOperatorsSettings().get(mainOperatorType));
+            Map<OperatorType, Map<OperatorSettings, Operator>> relatedOperators = operator.getRelatedOperators();
+            if (relatedOperators.size() > 0) {
+                for (OperatorType relatedOperatorType : relatedOperators.keySet()) {
+                    Operator relatedOperator = Operator.selectOperator(operator.getRelatedOperators().get(relatedOperatorType));
+                    relatedOperator.apply(individual);
+                }
+            }
         }
         logger.info("Применение связанных операторов в популяции. Окончание");
     }

@@ -16,6 +16,7 @@ public class ChainedAlgorithm extends Algorithm {
     private static Logger logger = LoggerFactory.getLogger(ChainedAlgorithm.class);
 
     private static final OperatorType RELATED_OPERATOR_TYPE = OperatorType.MUTATION;
+    private static final OperatorType MAIN_OPERATOR_TYPE = OperatorType.SELECTION;
 
     @Override
     public void initOperatorSettings(String operatorsFolder) throws IOException {
@@ -49,7 +50,7 @@ public class ChainedAlgorithm extends Algorithm {
             countOfGenerations += 1;
             population.applyOperator(OperatorType.SELECTION, operators);
             population.applyOperator(OperatorType.RECOMBINATION, operators);
-            population.applyOperatorWithRelated(operators.get(OperatorType.SELECTION), RELATED_OPERATOR_TYPE);
+            population.applyOperatorWithRelated(operators.get(MAIN_OPERATOR_TYPE), MAIN_OPERATOR_TYPE);
             population.calcFitness(problem);
             population.findBest();
             population.calcOperatorsFitness(operators);
@@ -75,7 +76,7 @@ public class ChainedAlgorithm extends Algorithm {
             countOfGenerations += 1;
             population.applyOperator(OperatorType.SELECTION, operators);
             population.applyOperator(OperatorType.RECOMBINATION, operators);
-            population.applyOperatorWithRelated(operators.get(OperatorType.SELECTION), RELATED_OPERATOR_TYPE);
+            population.applyOperatorWithRelated(operators.get(MAIN_OPERATOR_TYPE), MAIN_OPERATOR_TYPE);
             population.calcFitness(problem);
             population.replacement();
             population.findBest();
